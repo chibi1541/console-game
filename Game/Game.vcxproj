@@ -16,7 +16,7 @@
     <ProjectGuid>{8627c256-4a2e-4858-a7ae-b92cca1844fc}</ProjectGuid>
     <RootNamespace>ConsoleGame</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>ConsoleGame</ProjectName>
+    <ProjectName>Game</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -71,7 +71,8 @@
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <PreBuildEvent>
-      <Command>xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y /i</Command>
+      <Command>xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y /i
+xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -83,7 +84,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\Includes\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;..\Includes\</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -95,7 +96,8 @@
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <PreBuildEvent>
-      <Command>xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y /i</Command>
+      <Command>xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y /i
+xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
