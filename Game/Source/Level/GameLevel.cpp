@@ -5,6 +5,7 @@
 #include "Actor/Player.h"
 #include "Actor/Target.h"
 #include "Actor/Ground.h"
+#include "Engine/Engine.h"
 
 using namespace Craft;
 
@@ -92,7 +93,11 @@ void GameLevel::OnInitialized()
 	Level::OnInitialized();
 
 	// 파일을 읽어서 맵 로드
-	LoadMap("Map.txt");
+	//LoadMap("Map.txt");
+
+	Vector2 position = Vector2(Engine::Get().GetWidth() / 2, Engine::Get().GetHeight()/2);
+	SpawnActor<Player>(position);
+
 }
 
 void GameLevel::Draw()

@@ -7,7 +7,7 @@
 using namespace Craft;
 
 TestActor::TestActor()
-	: Actor("P", Vector2(5, 5), Color::Green)
+	: Actor(L"P", Vector2(5, 5), Color::Green)
 {
 	// 그리기 순서 값 설정.
 	sortingOrder = 5;

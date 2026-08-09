@@ -6,10 +6,13 @@
 using namespace Craft;
 
 Player::Player(const Vector2& position)
-	: super("P", position, Color::Green)
+	: super(L"", position, Color::Green)
 {
 	sortingOrder = 10;
 
+	std::vector<BYTE> bytes = FileUtils::ReadFile(L"../Assets/warrior_walk_frame1.txt");
+	string sour = string(bytes.begin(), bytes.end());
+	image = FileUtils::Convert(sour);
 }
 
 void Player::Tick(float deltaTime)
