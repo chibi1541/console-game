@@ -14,3 +14,5 @@
 
 #include "Utils/CorePch.h"
 #include "ServerCore/CorePch.h"
+
+using ServerSessionRef = shared_ptr<class ServerSession>;

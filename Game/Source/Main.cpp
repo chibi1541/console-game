@@ -6,6 +6,7 @@
 #include "ServerCore/ThreadManager.h"
 #include "ServerCore/Service.h"
 
+
 class ServerSession : public PacketSession
 {
 public:
@@ -52,16 +53,19 @@ int main()
 
 	ASSERT_CRASH(service->Start());
 
-	for (int32 i = 0; i < 2;i++)
-	{
-		GThreadManager->Launch([=]()
+	Craft::Engine engine;
+	Engine::Get().AddNewLevel<TestLevel>();
+
+	// 패킷만 처리하는 쓰레드를 추가
+	GThreadManager->Launch([=]()
+		{
+			while (true)
 			{
-				while (true)
-				{
-					service->GetIocpCore()->Dispatch();
-				}
-			});
-	}
+				service->GetIocpCore()->Dispatch();
+			}
+		});
+
+	Engine::Get().Run();
 
 	GThreadManager->Join();
 }

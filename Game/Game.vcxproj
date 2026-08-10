@@ -103,6 +103,8 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Actor\OtherPlayer.cpp" />
+    <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\Actor\Player.cpp" />
     <ClCompile Include="Source\Main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
@@ -119,6 +121,8 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     <ClCompile Include="Source\Protocol\Struct.pb.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Actor\OtherPlayer.h" />
+    <ClInclude Include="Source\Globals.h" />
     <ClInclude Include="Source\Actor\Player.h" />
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\Level\TestLevel.h" />

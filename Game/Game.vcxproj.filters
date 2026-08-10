@@ -13,6 +13,8 @@
     <ClCompile Include="Source\Protocol\Protocol.pb.cc" />
     <ClCompile Include="Source\Protocol\Struct.pb.cc" />
     <ClCompile Include="Source\Protocol\ServerPacketHandler.cpp" />
+    <ClCompile Include="Source\Globals.cpp" />
+    <ClCompile Include="Source\Actor\OtherPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h" />
@@ -26,6 +28,8 @@
     <ClInclude Include="Source\Protocol\Protocol.pb.h" />
     <ClInclude Include="Source\Protocol\Struct.pb.h" />
     <ClInclude Include="Source\Protocol\ServerPacketHandler.h" />
+    <ClInclude Include="Source\Globals.h" />
+    <ClInclude Include="Source\Actor\OtherPlayer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Actor">
