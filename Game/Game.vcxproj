@@ -45,27 +45,28 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Intermediate\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)Bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Intermediate\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)Bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PROTOBUF_USE_DLLS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source;..\Includes\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;..\Libraries\Include\;..\Libraries\Include\CraftEngine;..\Libraries\Include\ServerCore</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalOptions>/wd4251 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Lib\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Libraries\Libs\</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -81,16 +82,17 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PROTOBUF_USE_DLLS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source;..\Includes\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;..\Libraries\Include\;..\Libraries\Include\CraftEngine;..\Libraries\Include\ServerCore</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalOptions>/wd4251 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Lib\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Libraries\Libs\</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -101,11 +103,7 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Actor\Box.cpp" />
-    <ClCompile Include="Source\Actor\Ground.cpp" />
     <ClCompile Include="Source\Actor\Player.cpp" />
-    <ClCompile Include="Source\Actor\Wall.cpp" />
-    <ClCompile Include="Source\Level\GameLevel.cpp" />
     <ClCompile Include="Source\Main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
@@ -115,19 +113,19 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\Level\TestLevel.cpp" />
-    <ClCompile Include="Source\Actor\TestActor.cpp" />
-    <ClCompile Include="Source\Actor\Target.cpp" />
+    <ClCompile Include="Source\Protocol\Enum.pb.cc" />
+    <ClCompile Include="Source\Protocol\Protocol.pb.cc" />
+    <ClCompile Include="Source\Protocol\ServerPacketHandler.cpp" />
+    <ClCompile Include="Source\Protocol\Struct.pb.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Actor\Box.h" />
-    <ClInclude Include="Source\Actor\Ground.h" />
     <ClInclude Include="Source\Actor\Player.h" />
-    <ClInclude Include="Source\Actor\Wall.h" />
-    <ClInclude Include="Source\Level\GameLevel.h" />
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\Level\TestLevel.h" />
-    <ClInclude Include="Source\Actor\TestActor.h" />
-    <ClInclude Include="Source\Actor\Target.h" />
+    <ClInclude Include="Source\Protocol\Enum.pb.h" />
+    <ClInclude Include="Source\Protocol\Protocol.pb.h" />
+    <ClInclude Include="Source\Protocol\ServerPacketHandler.h" />
+    <ClInclude Include="Source\Protocol\Struct.pb.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
