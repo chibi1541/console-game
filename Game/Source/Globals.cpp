@@ -2,3 +2,4 @@
 #include "Globals.h"
 
 int64 userId = 0;
+ClientServiceRef GService = nullptr;

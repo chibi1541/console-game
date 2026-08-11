@@ -104,6 +104,8 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\OtherPlayer.cpp" />
+    <ClCompile Include="Source\Actor\ReplicatedActor.cpp" />
+    <ClCompile Include="Source\Level\ReplicatedLevel.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\Actor\Player.cpp" />
     <ClCompile Include="Source\Main.cpp">
@@ -119,9 +121,12 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     <ClCompile Include="Source\Protocol\Protocol.pb.cc" />
     <ClCompile Include="Source\Protocol\ServerPacketHandler.cpp" />
     <ClCompile Include="Source\Protocol\Struct.pb.cc" />
+    <ClCompile Include="Source\Utils\ObjectIdHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Actor\OtherPlayer.h" />
+    <ClInclude Include="Source\Actor\ReplicatedActor.h" />
+    <ClInclude Include="Source\Level\ReplicatedLevel.h" />
     <ClInclude Include="Source\Globals.h" />
     <ClInclude Include="Source\Actor\Player.h" />
     <ClInclude Include="Source\pch.h" />
@@ -130,6 +135,7 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     <ClInclude Include="Source\Protocol\Protocol.pb.h" />
     <ClInclude Include="Source\Protocol\ServerPacketHandler.h" />
     <ClInclude Include="Source\Protocol\Struct.pb.h" />
+    <ClInclude Include="Source\Utils\ObjectIdHandler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,11 +1,15 @@
 ﻿#pragma once
+#include "ReplicatedActor.h"
 
-
-class OtherPlayer : public Craft::Actor
+class OtherPlayer : public ReplicatedActor
 {
-	TYPE_DECLARATIONS(OtherPlayer, Actor)
+	TYPE_DECLARATIONS(OtherPlayer, ReplicatedActor)
 public:
-	OtherPlayer(const Craft::Vector2& position);
+	OtherPlayer(const Craft::Vector2& position, uint64 objectId);
 
+	int64 GetPlayerId() const { return _playerId; }
+
+private:
+	int64 _playerId = 0;
 };
 

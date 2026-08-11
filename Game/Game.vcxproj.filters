@@ -15,6 +15,9 @@
     <ClCompile Include="Source\Protocol\ServerPacketHandler.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\Actor\OtherPlayer.cpp" />
+    <ClCompile Include="Source\Utils\ObjectIdHandler.cpp" />
+    <ClCompile Include="Source\Actor\ReplicatedActor.cpp" />
+    <ClCompile Include="Source\Level\ReplicatedLevel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h" />
@@ -30,6 +33,9 @@
     <ClInclude Include="Source\Protocol\ServerPacketHandler.h" />
     <ClInclude Include="Source\Globals.h" />
     <ClInclude Include="Source\Actor\OtherPlayer.h" />
+    <ClInclude Include="Source\Utils\ObjectIdHandler.h" />
+    <ClInclude Include="Source\Actor\ReplicatedActor.h" />
+    <ClInclude Include="Source\Level\ReplicatedLevel.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Actor">

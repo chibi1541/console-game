@@ -1,8 +1,10 @@
 ﻿#include "pch.h"
 #include "OtherPlayer.h"
 
-OtherPlayer::OtherPlayer(const Craft::Vector2& position)
-	: super(L"◐", position, Craft::Color::Red)
+using namespace Craft;
+
+OtherPlayer::OtherPlayer(const Vector2& position, uint64 objectId)
+	: super(L"◐", position, Craft::Color::Red, objectId)
 {
 	sortingOrder = 10;
 }

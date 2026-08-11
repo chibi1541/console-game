@@ -6,6 +6,7 @@
 #include "Actor/Player.h"
 #include "Actor/OtherPlayer.h"
 #include "Globals.h"
+#include "Level/ReplicatedLevel.h"
 
 PacketHandlerFunc GPacketHandler[UINT16_MAX];
 
@@ -35,17 +36,12 @@ bool Handle_S_ENTER_GAME(PacketSessionRef& session, Protocol::S_ENTER_GAME& pkt)
 	std::shared_ptr<Level> curLevel = Engine::Get().GetLevel();
 	ASSERT_CRASH(curLevel);
 
-	Vector2 spawnPos = Vector2(pkt.spawnpos().x(), pkt.spawnpos().y());
-	curLevel->SpawnActor<Player>(spawnPos);
+	// TODO : 플레이어 정보 저장
 
-	int size = pkt.players_size();
-	for (int i = 0;i < size; ++i)
-	{
-		const Protocol::PlayerInfo& player = pkt.players(i);
+	const Protocol::ActorInfo& actor = pkt.player().actor();
 
-		Vector2 spawnPos = Vector2(player.pos().x(), player.pos().y());
-		curLevel->SpawnActor<OtherPlayer>(spawnPos);
-	}
+	Vector2 spawnPos = Vector2(actor.pos().x(), actor.pos().y());
+	curLevel->SpawnActor<Player>(spawnPos, actor.objectid());
 
 	return true;
 }
@@ -58,8 +54,22 @@ bool Handle_S_SPAWN_ACTOR(PacketSessionRef& session, Protocol::S_SPAWN_ACTOR& pk
 		ASSERT_CRASH(curLevel);
 
 		Vector2 spawnPos = Vector2(pkt.spawnpos().x(), pkt.spawnpos().y());
-		curLevel->SpawnActor<OtherPlayer>(spawnPos);
+		curLevel->SpawnActor<OtherPlayer>(spawnPos, pkt.id());
 	}
+
+	return true;
+}
+
+bool Handle_S_UPDATE_ROOM(PacketSessionRef& session, Protocol::S_UPDATE_ROOM& pkt)
+{
+	std::shared_ptr<Level> curLevel = Engine::Get().GetLevel();
+	ASSERT_CRASH(curLevel);
+
+	std::shared_ptr<ReplicatedLevel> rLevel = Cast<ReplicatedLevel>(curLevel);
+	ASSERT_CRASH(rLevel);
+
+	JobRef job = std::make_shared<Job>(rLevel, &ReplicatedLevel::UpateLevelReplicated, std::move(pkt));
+	rLevel->Push(job);
 
 	return true;
 }

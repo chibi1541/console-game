@@ -1,11 +1,17 @@
 ﻿#include "pch.h"
 #include "Player.h"
 #include "Input/Input.h"
+#include <Protocol/ServerPacketHandler.h>
+#include <Protocol/Protocol.pb.h>
+#include <Globals.h>
+#include <ServerCore/Service.h>
+#include "Protocol/Enum.pb.h"
+
 
 using namespace Craft;
 
-Player::Player(const Vector2& position)
-	: super(L"◑", position, Craft::Color::Green)
+Player::Player(const Vector2& position, uint64 objectId)
+	: super(L"◑", position, Craft::Color::Green, objectId)
 {
 	sortingOrder = 10;
 }
@@ -27,7 +33,13 @@ void Player::Tick(float deltaTime)
 		Vector2 newPosition = GetPosition();
 		newPosition.x += 1;
 
-		SetPosition(newPosition);
+		// TODO : 클라에서 서버 쪽으로 패킷 보내는 로직도 별도의 분리가 필요
+		Protocol::C_MOVE_ACTOR pkt;
+		pkt.set_newdir(Protocol::DirectionType::DIR_RIGHT);
+
+		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
+		GService.get()->Broadcast(sendBuffer);
+
 	}
 
 	if (Input::Get().GetKeyDown(VK_LEFT))
@@ -35,7 +47,12 @@ void Player::Tick(float deltaTime)
 		Vector2 newPosition = GetPosition();
 		newPosition.x -= 1;
 
-		SetPosition(newPosition);
+		Protocol::C_MOVE_ACTOR pkt;
+		pkt.set_newdir(Protocol::DirectionType::DIR_LEFT);
+
+		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
+		GService.get()->Broadcast(sendBuffer);
+
 	}
 
 	if (Input::Get().GetKeyDown(VK_UP))
@@ -43,7 +60,12 @@ void Player::Tick(float deltaTime)
 		Vector2 newPosition = GetPosition();
 		newPosition.y -= 1;
 
-		SetPosition(newPosition);
+		Protocol::C_MOVE_ACTOR pkt;
+		pkt.set_newdir(Protocol::DirectionType::DIR_UP);
+
+		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
+		GService.get()->Broadcast(sendBuffer);
+
 	}
 
 	if (Input::Get().GetKeyDown(VK_DOWN))
@@ -51,6 +73,11 @@ void Player::Tick(float deltaTime)
 		Vector2 newPosition = GetPosition();
 		newPosition.y += 1;
 
-		SetPosition(newPosition);
+		Protocol::C_MOVE_ACTOR pkt;
+		pkt.set_newdir(Protocol::DirectionType::DIR_DOWN);
+
+		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
+		GService.get()->Broadcast(sendBuffer);
+
 	}
 }

@@ -1,10 +1,11 @@
 ﻿#pragma once
 #include "pch.h"
 #include "Engine/Engine.h"
-#include "Level/TestLevel.h"
+#include "Level/ReplicatedLevel.h"
 #include "Protocol/ServerPacketHandler.h"
 #include "ServerCore/ThreadManager.h"
 #include "ServerCore/Service.h"
+#include "Globals.h"
 
 
 class ServerSession : public PacketSession
@@ -44,28 +45,28 @@ int main()
 {
 	ServerPacketHandler::Init();
 
-	ClientServiceRef service = MakeShared<ClientService>(
+	GService = MakeShared<ClientService>(
 		NetAddress(L"127.0.0.1", 7777),
 		MakeShared<IocpCore>(),
 		MakeShared<ServerSession>,
 		1
 	);
 
-	ASSERT_CRASH(service->Start());
+	ASSERT_CRASH(GService->Start());
 
 	Craft::Engine engine;
-	Engine::Get().AddNewLevel<TestLevel>();
+	Craft::Engine::Get().AddNewLevel<ReplicatedLevel>();
 
 	// 패킷만 처리하는 쓰레드를 추가
 	GThreadManager->Launch([=]()
 		{
 			while (true)
 			{
-				service->GetIocpCore()->Dispatch();
+				GService->GetIocpCore()->Dispatch();
 			}
 		});
 
-	Engine::Get().Run();
+	Craft::Engine::Get().Run();
 
 	GThreadManager->Join();
 }
