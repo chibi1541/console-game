@@ -103,6 +103,7 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Actor\Item.cpp" />
     <ClCompile Include="Source\Actor\OtherPlayer.cpp" />
     <ClCompile Include="Source\Actor\ReplicatedActor.cpp" />
     <ClCompile Include="Source\Level\ReplicatedLevel.cpp" />
@@ -124,6 +125,7 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     <ClCompile Include="Source\Utils\ObjectIdHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Actor\Item.h" />
     <ClInclude Include="Source\Actor\OtherPlayer.h" />
     <ClInclude Include="Source\Actor\ReplicatedActor.h" />
     <ClInclude Include="Source\Level\ReplicatedLevel.h" />

@@ -20,6 +20,11 @@ void Player::Tick(float deltaTime)
 {
 	super::Tick(deltaTime);
 
+	if (_prevSyncTick == 0)
+		return;
+
+	// TODO : 입력 처리 따로 빼기
+
 	// 종료처리
 	if (Input::Get().GetKeyDown(VK_ESCAPE))
 	{
@@ -27,7 +32,6 @@ void Player::Tick(float deltaTime)
 		return;
 	}
 
-	// 지금 상태면 대각선 이동돼서 박스 밀리는 판단이 애매해지지 않나?
 	if (Input::Get().GetKeyDown(VK_RIGHT))
 	{
 		Vector2 newPosition = GetPosition();
@@ -40,6 +44,7 @@ void Player::Tick(float deltaTime)
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
 		GService.get()->Broadcast(sendBuffer);
 
+		_direction = Protocol::DirectionType::DIR_RIGHT;
 	}
 
 	if (Input::Get().GetKeyDown(VK_LEFT))
@@ -53,6 +58,7 @@ void Player::Tick(float deltaTime)
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
 		GService.get()->Broadcast(sendBuffer);
 
+		_direction = Protocol::DirectionType::DIR_LEFT;
 	}
 
 	if (Input::Get().GetKeyDown(VK_UP))
@@ -66,6 +72,7 @@ void Player::Tick(float deltaTime)
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
 		GService.get()->Broadcast(sendBuffer);
 
+		_direction = Protocol::DirectionType::DIR_UP;
 	}
 
 	if (Input::Get().GetKeyDown(VK_DOWN))
@@ -79,5 +86,41 @@ void Player::Tick(float deltaTime)
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
 		GService.get()->Broadcast(sendBuffer);
 
+		_direction = Protocol::DirectionType::DIR_DOWN;
 	}
+
+	int64 b = _nextSyncTick - _prevSyncTick;
+
+	float delta = (b > 0) ? (_nextSyncTick - GDelayedTickCount) / b : deltaTime;
+
+	_xPos = _prevPos.x + (_nextPos.x - _prevPos.x) * delta;
+	_yPos = _prevPos.y + (_nextPos.y - _prevPos.y) * delta; 
+	super::SetPosition(Vector2(static_cast<int>(_xPos), static_cast<int>(_yPos)));
+
+
+	//ASSERT_CRASH(_direction != Protocol::DirectionType::DIR_NONE);
+	//int32 direction = static_cast<int32>(_direction);
+
+	//// y축 = 1, x축 = 0
+	//int32 axisType = direction / 3;
+	//int32 valueType = (direction % 2 == 0) ? 1 : -1;
+
+	//if (axisType == 0)
+	//{
+	//	_xPos = _xPos + (static_cast<float>(valueType) * _moveSpeed * deltaTime);
+	//}
+	//else
+	//{
+	//	_yPos = _yPos + (static_cast<float>(valueType) * _moveSpeed * deltaTime);
+	//}
+
+	//super::SetPosition(Vector2(static_cast<int>(_xPos), static_cast<int>(_yPos)));
+}
+
+void Player::SetPosition(const Craft::Vector2& newPosition)
+{
+	Craft::Vector2 pos = Craft::Vector2(newPosition.x / 100, newPosition.y / 100);
+	Actor::SetPosition(pos);
+	_xPos = static_cast<float>(newPosition.x) / 100;
+	_yPos = static_cast<float>(newPosition.y) / 100;
 }

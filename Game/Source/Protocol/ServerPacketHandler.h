@@ -16,6 +16,7 @@ enum : uint16
 	PKT_S_SPAWN_ACTOR = 1004,
 	PKT_C_MOVE_ACTOR = 1005,
 	PKT_S_UPDATE_ROOM = 1006,
+	PKT_S_DESTROY_ACTOR = 1007,
 };
 
 bool Handle_INVALID(PacketSessionRef& session, BYTE* buffer, int32 len);
@@ -25,6 +26,7 @@ bool Handle_S_LOGIN(PacketSessionRef& session, Protocol::S_LOGIN& pkt);
 bool Handle_S_ENTER_GAME(PacketSessionRef& session, Protocol::S_ENTER_GAME& pkt);
 bool Handle_S_SPAWN_ACTOR(PacketSessionRef& session, Protocol::S_SPAWN_ACTOR& pkt);
 bool Handle_S_UPDATE_ROOM(PacketSessionRef& session, Protocol::S_UPDATE_ROOM& pkt);
+bool Handle_S_DESTROY_ACTOR(PacketSessionRef& session, Protocol::S_DESTROY_ACTOR& pkt);
 
 // PacketHandler 클래스 자동화
 class ServerPacketHandler
@@ -40,6 +42,7 @@ public:
 		GPacketHandler[PKT_S_ENTER_GAME] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_ENTER_GAME>(Handle_S_ENTER_GAME, session, buffer, len); };
 		GPacketHandler[PKT_S_SPAWN_ACTOR] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_SPAWN_ACTOR>(Handle_S_SPAWN_ACTOR, session, buffer, len); };
 		GPacketHandler[PKT_S_UPDATE_ROOM] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_UPDATE_ROOM>(Handle_S_UPDATE_ROOM, session, buffer, len); };
+		GPacketHandler[PKT_S_DESTROY_ACTOR] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_DESTROY_ACTOR>(Handle_S_DESTROY_ACTOR, session, buffer, len); };
 
 	}
 

@@ -16,3 +16,5 @@
 #include "ServerCore/CorePch.h"
 
 using ServerSessionRef = shared_ptr<class ServerSession>;
+using ReplActorRef = shared_ptr<class ReplicatedActor>;
+using ReplLevelRef = shared_ptr<class ReplicatedLevel>;

@@ -18,6 +18,7 @@
     <ClCompile Include="Source\Utils\ObjectIdHandler.cpp" />
     <ClCompile Include="Source\Actor\ReplicatedActor.cpp" />
     <ClCompile Include="Source\Level\ReplicatedLevel.cpp" />
+    <ClCompile Include="Source\Actor\Item.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h" />
@@ -36,6 +37,7 @@
     <ClInclude Include="Source\Utils\ObjectIdHandler.h" />
     <ClInclude Include="Source\Actor\ReplicatedActor.h" />
     <ClInclude Include="Source\Level\ReplicatedLevel.h" />
+    <ClInclude Include="Source\Actor\Item.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Actor">

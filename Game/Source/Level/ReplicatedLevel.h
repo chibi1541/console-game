@@ -3,18 +3,39 @@
 #include "ServerCore/Job.h"
 #include "Protocol/Protocol.pb.h"
 
+struct LevelSyncData
+{
+	LevelSyncData() = default;
+
+	LevelSyncData(uint64 syncTick, Protocol::S_UPDATE_ROOM pkt)
+		: syncTick(syncTick), pkt(pkt)
+	{
+	}
+
+	uint64 syncTick = 0;
+	Protocol::S_UPDATE_ROOM pkt;
+};
+
 class ReplicatedLevel : public Craft::Level
 {
+	enum { POSTPHONE_TICK = 75 };
+
+
 	TYPE_DECLARATIONS(ReplicatedLevel, Level)
 
 public:
+	virtual void OnInitialized() override;
+
 
 	// 패킷 처리 관련 
 public:
 	void Push(JobRef job);
 
+	void AddLevelSnapshot(uint64 syncTick, Protocol::S_UPDATE_ROOM pkt);
 
-	void UpateLevelReplicated(Protocol::S_UPDATE_ROOM pkt);
+	void UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData nextSyncData);
+
+	void DestroyReplicatedActor(uint64 objectId);
 
 protected:
 	virtual void UpdateReplicated();
@@ -28,6 +49,9 @@ private:
 	USE_LOCK;
 
 	queue<JobRef> _jobQueue;
+
+	queue<LevelSyncData> _syncQueue;
+	uint64 _targetTickCount = 0;
 
 };
 

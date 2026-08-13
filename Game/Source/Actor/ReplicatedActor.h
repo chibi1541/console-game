@@ -13,10 +13,24 @@ public:
 
 	void SetObjectId(uint64 newObjId);
 
+	void SetPrevSyncTick(uint64 tickCount) { _prevSyncTick = tickCount; }
+	int64 GetPrevSyncTick() const { return _prevSyncTick; }
+
+	void SetPrevSyncPos(const Craft::Vector2& prevPos) { _prevPos = prevPos; }
+
+	void SetNextSyncTick(uint64 tickCount) { _nextSyncTick = tickCount; }
+	int64 GetNextSyncTick() const { return _nextSyncTick; }
+
+	void SetNextSyncPos(const Craft::Vector2& nextPos) { _nextPos = nextPos; }
 
 protected:
 	uint64 objectId = 0;
 
+	uint64 _nextSyncTick = 0;
+	uint64 _prevSyncTick = 0;
+
+	Craft::Vector2 _nextPos;
+	Craft::Vector2 _prevPos;
 
 };
 
