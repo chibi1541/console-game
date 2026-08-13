@@ -58,7 +58,7 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 			if (actor->GetObjectId() == actorInfo.objectid())
 			{
 				actor->SetPrevSyncTick(prevSyncData.syncTick);
-				actor->SetPrevSyncPos(Craft::Vector2(actorInfo.pos().x() / 100, actorInfo.pos().y() / 100));
+				actor->SetPrevSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
 				break;
 			}
 		}
@@ -68,7 +68,7 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 			if (actor->GetObjectId() == actorInfo.objectid())
 			{
 				actor->SetNextSyncTick(nextSyncData.syncTick);
-				actor->SetNextSyncPos(Craft::Vector2(actorInfo.pos().x() / 100, actorInfo.pos().y() / 100));
+				actor->SetNextSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
 				break;
 			}
 		}
@@ -82,6 +82,7 @@ void ReplicatedLevel::DestroyReplicatedActor(uint64 objectId)
 	{
 		if (actor->GetObjectId() == objectId)
 		{
+			// temp 지워야 할지도?
 			// 파괴 예약
 			actor->Destroy();
 			break;
@@ -93,7 +94,10 @@ void ReplicatedLevel::Tick(float deltaTime)
 {
 	const std::wstring frameRate = std::format(L"FPS : {}", 1 / deltaTime);
 
+	const std::wstring syncQueueSize = std::format(L"Sync Queue Size : {}", _syncQueue.size());
+
 	Craft::Renderer::Get().Submit(frameRate, Craft::Vector2::Zero, Craft::Color::BrightWhite, 100);
+	Craft::Renderer::Get().Submit(syncQueueSize, Craft::Vector2(0,1), Craft::Color::BrightWhite, 100);
 
 	UpdateReplicated();
 
@@ -130,4 +134,5 @@ void ReplicatedLevel::Tick(float deltaTime)
 	}
 
 	super::Tick(deltaTime);
+
 }

@@ -9,6 +9,7 @@
 #include "Level/ReplicatedLevel.h"
 #include "Utils/ObjectIdHandler.h"
 #include "Actor/Item.h"
+#include "Actor/SubActor.h"
 
 PacketHandlerFunc GPacketHandler[UINT16_MAX];
 
@@ -46,7 +47,7 @@ bool Handle_S_ENTER_GAME(PacketSessionRef& session, Protocol::S_ENTER_GAME& pkt)
 	Vector2 spawnPos = Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
 	shared_ptr<Player> player = level->SpawnActor<Player>(spawnPos, head.actor().objectid());
 	player->SetMoveSpeed(head.movespeed());
-	player->SetDirection(head.dir());
+	player->SetSyncDirection(head.dir());
 
 	return true;
 }
@@ -70,6 +71,12 @@ bool Handle_S_SPAWN_ACTOR(PacketSessionRef& session, Protocol::S_SPAWN_ACTOR& pk
 				level->SpawnActor<OtherPlayer>(spawnPos, pkt.id());
 				break;
 			}	
+			case Protocol::ObjectType::OBJECT_SNAKE_BODY:
+			{
+				// TODO : 패킷 수정, 이쪽이 아니라 별도의 패킷이 필요
+				level->SpawnActor<SubActor>(spawnPos, pkt.id());
+				break;
+			}
 			case Protocol::ObjectType::OBJECT_ITEM:
 			{
 				level->SpawnActor<Item>(spawnPos, pkt.id());

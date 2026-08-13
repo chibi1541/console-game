@@ -23,6 +23,11 @@ public:
 
 	void SetNextSyncPos(const Craft::Vector2& nextPos) { _nextPos = nextPos; }
 
+	virtual void SetPosition(const Craft::Vector2& newPosition) override;
+
+protected:
+	virtual void Tick(float deltaTime) override;
+
 protected:
 	uint64 objectId = 0;
 
@@ -32,5 +37,7 @@ protected:
 	Craft::Vector2 _nextPos;
 	Craft::Vector2 _prevPos;
 
+	int32 calcXPos = 0;
+	int32 calcYPos = 0;
 };
 

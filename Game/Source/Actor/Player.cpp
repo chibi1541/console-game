@@ -6,6 +6,7 @@
 #include <Globals.h>
 #include <ServerCore/Service.h>
 #include "Protocol/Enum.pb.h"
+#include "Render/Renderer.h"
 
 
 using namespace Craft;
@@ -18,8 +19,6 @@ Player::Player(const Vector2& position, uint64 objectId)
 
 void Player::Tick(float deltaTime)
 {
-	super::Tick(deltaTime);
-
 	if (_prevSyncTick == 0)
 		return;
 
@@ -44,7 +43,7 @@ void Player::Tick(float deltaTime)
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
 		GService.get()->Broadcast(sendBuffer);
 
-		_direction = Protocol::DirectionType::DIR_RIGHT;
+		_localDir = Protocol::DirectionType::DIR_RIGHT;
 	}
 
 	if (Input::Get().GetKeyDown(VK_LEFT))
@@ -58,7 +57,7 @@ void Player::Tick(float deltaTime)
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
 		GService.get()->Broadcast(sendBuffer);
 
-		_direction = Protocol::DirectionType::DIR_LEFT;
+		_localDir = Protocol::DirectionType::DIR_LEFT;
 	}
 
 	if (Input::Get().GetKeyDown(VK_UP))
@@ -72,7 +71,7 @@ void Player::Tick(float deltaTime)
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
 		GService.get()->Broadcast(sendBuffer);
 
-		_direction = Protocol::DirectionType::DIR_UP;
+		_localDir = Protocol::DirectionType::DIR_UP;
 	}
 
 	if (Input::Get().GetKeyDown(VK_DOWN))
@@ -86,41 +85,14 @@ void Player::Tick(float deltaTime)
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
 		GService.get()->Broadcast(sendBuffer);
 
-		_direction = Protocol::DirectionType::DIR_DOWN;
+		_localDir = Protocol::DirectionType::DIR_DOWN;
 	}
 
-	int64 b = _nextSyncTick - _prevSyncTick;
+	super::Tick(deltaTime);
 
-	float delta = (b > 0) ? (_nextSyncTick - GDelayedTickCount) / b : deltaTime;
-
-	_xPos = _prevPos.x + (_nextPos.x - _prevPos.x) * delta;
-	_yPos = _prevPos.y + (_nextPos.y - _prevPos.y) * delta; 
-	super::SetPosition(Vector2(static_cast<int>(_xPos), static_cast<int>(_yPos)));
-
-
-	//ASSERT_CRASH(_direction != Protocol::DirectionType::DIR_NONE);
-	//int32 direction = static_cast<int32>(_direction);
-
-	//// y축 = 1, x축 = 0
-	//int32 axisType = direction / 3;
-	//int32 valueType = (direction % 2 == 0) ? 1 : -1;
-
-	//if (axisType == 0)
-	//{
-	//	_xPos = _xPos + (static_cast<float>(valueType) * _moveSpeed * deltaTime);
-	//}
-	//else
-	//{
-	//	_yPos = _yPos + (static_cast<float>(valueType) * _moveSpeed * deltaTime);
-	//}
-
-	//super::SetPosition(Vector2(static_cast<int>(_xPos), static_cast<int>(_yPos)));
-}
-
-void Player::SetPosition(const Craft::Vector2& newPosition)
-{
-	Craft::Vector2 pos = Craft::Vector2(newPosition.x / 100, newPosition.y / 100);
-	Actor::SetPosition(pos);
-	_xPos = static_cast<float>(newPosition.x) / 100;
-	_yPos = static_cast<float>(newPosition.y) / 100;
+	// temp : 디버그용
+	{
+		const std::wstring ypos = std::format(L"Prev : {} Cur : {} Next : {}", _prevPos.y, calcYPos, _nextPos.y);
+		Craft::Renderer::Get().Submit(ypos, Craft::Vector2(0, 2), Craft::Color::BrightWhite, 100);
+	}
 }
