@@ -7,8 +7,3 @@ SubActor::SubActor(const Craft::Vector2& position, uint64 objectId)
 {
 	sortingOrder = 9;
 }
-
-void SubActor::Tick(float deltaTime)
-{
-
-}

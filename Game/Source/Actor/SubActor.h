@@ -10,7 +10,6 @@ public:
 	SubActor(const std::wstring& image, const Craft::Vector2& position, Craft::Color color, uint64 objectId);
 
 private:
-	virtual void Tick(float deltaTime) override;
 
 };
 

@@ -7,6 +7,7 @@
 #include <ServerCore/Service.h>
 #include "Protocol/Enum.pb.h"
 #include "Render/Renderer.h"
+#include "Actor/SubActor.h"
 
 
 using namespace Craft;
@@ -15,6 +16,40 @@ Player::Player(const Vector2& position, uint64 objectId)
 	: super(L"◑", position, Craft::Color::Green, objectId)
 {
 	sortingOrder = 10;
+}
+
+void Player::SetSubActorsPrevSync(uint64 syncTickCount, const google::protobuf::RepeatedPtrField<Protocol::ActorInfo>& actorInfos)
+{
+	for (auto actorInfo : actorInfos)
+	{
+		for (auto actor : _subActors)
+		{
+			auto actorRef = actor.lock();
+			if (actorRef && actorRef->GetObjectId() == actorInfo.objectid())
+			{
+				actorRef->SetPrevSyncTick(syncTickCount);
+				actorRef->SetPrevSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
+				break;
+			}
+		}
+	}
+}
+
+void Player::SetSubActorsNextSync(uint64 syncTickCount, const google::protobuf::RepeatedPtrField<Protocol::ActorInfo>& actorInfos)
+{
+	for (auto actorInfo : actorInfos)
+	{
+		for (auto actor : _subActors)
+		{
+			auto actorRef = actor.lock();
+			if (actorRef && actorRef->GetObjectId() == actorInfo.objectid())
+			{
+				actorRef->SetNextSyncTick(syncTickCount);
+				actorRef->SetNextSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
+				break;
+			}
+		}
+	}
 }
 
 void Player::Tick(float deltaTime)

@@ -18,3 +18,4 @@
 using ServerSessionRef = shared_ptr<class ServerSession>;
 using ReplActorRef = shared_ptr<class ReplicatedActor>;
 using ReplLevelRef = shared_ptr<class ReplicatedLevel>;
+using PlayerRef = shared_ptr<class Player>;

@@ -4,6 +4,9 @@
 #include "Globals.h"
 #include "Render/Renderer.h"
 #include <string>
+#include "Actor/Player.h"
+
+using namespace Protocol;
 
 void ReplicatedLevel::OnInitialized()
 {
@@ -49,8 +52,37 @@ void ReplicatedLevel::AddLevelSnapshot(uint64 syncTick, Protocol::S_UPDATE_ROOM 
 
 void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData nextSyncData)
 {
-	vector<ReplActorRef> actors = FindActors<ReplicatedActor>();
+	vector<PlayerRef> players = FindActors<Player>();
+	for (PlayerRef player : players)
+	{
+		for (auto headInfo : prevSyncData.pkt.heads())
+		{
+			if (player->GetObjectId() == headInfo.actor().objectid())
+			{
+				ActorInfo actorInfo = headInfo.actor();
+				player->SetPrevSyncTick(prevSyncData.syncTick);
+				player->SetPrevSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
+				player->SetSubActorsPrevSync(prevSyncData.syncTick, headInfo.bodys());
+				break;
+			}
+		}
 
+		for (auto headInfo : nextSyncData.pkt.heads())
+		{
+			if (player->GetObjectId() == headInfo.actor().objectid())
+			{
+				ActorInfo actorInfo = headInfo.actor();
+				player->SetNextSyncTick(nextSyncData.syncTick);
+				player->SetNextSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
+				player->SetSubActorsNextSync(nextSyncData.syncTick, headInfo.bodys());
+				break;
+			}
+		}
+	}
+
+
+	// TODO : 패킷 정리, 머리는 여기로 안들어 오니까 최적화 강구
+	vector<ReplActorRef> actors = FindActors<ReplicatedActor>();
 	for (ReplActorRef actor : actors)
 	{
 		for (auto actorInfo : prevSyncData.pkt.actors())
