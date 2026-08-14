@@ -20,6 +20,7 @@
     <ClCompile Include="Source\Level\ReplicatedLevel.cpp" />
     <ClCompile Include="Source\Actor\Item.cpp" />
     <ClCompile Include="Source\Actor\SubActor.cpp" />
+    <ClCompile Include="Source\Actor\Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h" />
@@ -42,6 +43,7 @@
     <ClInclude Include="Source\Manager\Singleton.h" />
     <ClInclude Include="Source\Utils\HelperFuncs.h" />
     <ClInclude Include="Source\Actor\SubActor.h" />
+    <ClInclude Include="Source\Actor\Wall.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Actor">

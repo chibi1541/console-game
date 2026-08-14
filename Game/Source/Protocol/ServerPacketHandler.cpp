@@ -39,9 +39,12 @@ bool Handle_S_ENTER_GAME(PacketSessionRef& session, Protocol::S_ENTER_GAME& pkt)
 	std::shared_ptr<ReplicatedLevel> level = Cast<ReplicatedLevel>(Engine::Get().GetLevel());
 	ASSERT_CRASH(level);
 
+	// TODO : 맵의 벽 액터 스폰
+	JobRef job = std::make_shared<Job>(level, &ReplicatedLevel::InitField, pkt.width(), pkt.height());
+	level->Push(job);
+
 	// TODO : 플레이어 정보 저장
-
-
+	
 	const Protocol::HeadData& head = pkt.player().head();
 	userObjectId = head.actor().objectid();
 	Vector2 spawnPos = Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
@@ -71,12 +74,12 @@ bool Handle_S_SPAWN_ACTOR(PacketSessionRef& session, Protocol::S_SPAWN_ACTOR& pk
 				level->SpawnActor<OtherPlayer>(spawnPos, pkt.id());
 				break;
 			}	
-			case Protocol::ObjectType::OBJECT_SNAKE_BODY:
-			{
-				// TODO : 패킷 수정, 이쪽이 아니라 별도의 패킷이 필요
-				level->SpawnActor<SubActor>(spawnPos, pkt.id());
-				break;
-			}
+			//case Protocol::ObjectType::OBJECT_SNAKE_BODY:
+			//{
+			//	// TODO : 패킷 수정, 이쪽이 아니라 별도의 패킷이 필요
+			//	level->SpawnActor<SubActor>(spawnPos, pkt.id());
+			//	break;
+			//}
 			case Protocol::ObjectType::OBJECT_ITEM:
 			{
 				level->SpawnActor<Item>(spawnPos, pkt.id());

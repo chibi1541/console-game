@@ -37,6 +37,8 @@ public:
 
 	void DestroyReplicatedActor(uint64 objectId);
 
+	void InitField(uint32 width, uint32 height);
+
 protected:
 	virtual void UpdateReplicated();
 

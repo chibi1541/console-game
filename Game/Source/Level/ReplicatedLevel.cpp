@@ -5,6 +5,7 @@
 #include "Render/Renderer.h"
 #include <string>
 #include "Actor/Player.h"
+#include "Actor/Wall.h"
 
 using namespace Protocol;
 
@@ -62,7 +63,13 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 				ActorInfo actorInfo = headInfo.actor();
 				player->SetPrevSyncTick(prevSyncData.syncTick);
 				player->SetPrevSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
-				player->SetSubActorsPrevSync(prevSyncData.syncTick, headInfo.bodys());
+				
+				if (headInfo.trails_size() > 0)
+				{
+					player->UpdateTrailInfo(headInfo.trails());
+				}
+
+				//player->SetSubActorsPrevSync(prevSyncData.syncTick, headInfo.bodys());
 				break;
 			}
 		}
@@ -74,7 +81,7 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 				ActorInfo actorInfo = headInfo.actor();
 				player->SetNextSyncTick(nextSyncData.syncTick);
 				player->SetNextSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
-				player->SetSubActorsNextSync(nextSyncData.syncTick, headInfo.bodys());
+				//player->SetSubActorsNextSync(nextSyncData.syncTick, headInfo.bodys());
 				break;
 			}
 		}
@@ -122,14 +129,34 @@ void ReplicatedLevel::DestroyReplicatedActor(uint64 objectId)
 	}
 }
 
+void ReplicatedLevel::InitField(uint32 width, uint32 height)
+{
+	// 벽 생성
+	for (uint32 idx = 0; idx < width; ++idx)
+	{
+		//if(idx % 3 == 0)
+			SpawnActor<Wall>(Craft::Vector2(idx, 0));
+		//else if(idx % 3 == 2)
+			SpawnActor<Wall>(Craft::Vector2(idx, height - 1));
+	}
+
+	for (uint32 idx = 0; idx < height; ++idx)
+	{
+		//if (idx % 3 == 0)
+			SpawnActor<Wall>(Craft::Vector2(0, idx));
+		//else if(idx % 3 == 2)
+			SpawnActor<Wall>(Craft::Vector2(width - 1, idx));
+	}
+}
+
 void ReplicatedLevel::Tick(float deltaTime)
 {
-	const std::wstring frameRate = std::format(L"FPS : {}", 1 / deltaTime);
+	//const std::wstring frameRate = std::format(L"FPS : {}", 1 / deltaTime);
 
-	const std::wstring syncQueueSize = std::format(L"Sync Queue Size : {}", _syncQueue.size());
+	//const std::wstring syncQueueSize = std::format(L"Sync Queue Size : {}", _syncQueue.size());
 
-	Craft::Renderer::Get().Submit(frameRate, Craft::Vector2::Zero, Craft::Color::BrightWhite, 100);
-	Craft::Renderer::Get().Submit(syncQueueSize, Craft::Vector2(0,1), Craft::Color::BrightWhite, 100);
+	//Craft::Renderer::Get().Submit(frameRate, Craft::Vector2::Zero, Craft::Color::BrightWhite, 100);
+	//Craft::Renderer::Get().Submit(syncQueueSize, Craft::Vector2(0,1), Craft::Color::BrightWhite, 100);
 
 	UpdateReplicated();
 

@@ -8,7 +8,6 @@ class Item : public ReplicatedActor
 public:
 	Item(const Craft::Vector2& position, uint64 objectId);
 
-
 private:
 
 };

@@ -1,13 +1,14 @@
 ﻿#pragma once
-#include "ReplicatedActor.h"
+#include "Actor/Actor.h"
 
-class SubActor : public ReplicatedActor
+
+class SubActor : public Craft::Actor
 {
-	TYPE_DECLARATIONS(SubActor, ReplicatedActor);
+	TYPE_DECLARATIONS(SubActor, Craft::Actor);
 
 public:
-	SubActor(const Craft::Vector2& position, uint64 objectId);
-	SubActor(const std::wstring& image, const Craft::Vector2& position, Craft::Color color, uint64 objectId);
+	SubActor(const Craft::Vector2& position);
+	//SubActor(const std::wstring& image, const Craft::Vector2& position, Craft::Color color, uint64 objectId);
 
 private:
 

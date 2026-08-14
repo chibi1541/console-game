@@ -2,8 +2,8 @@
 #include "SubActor.h"
 #include "Globals.h"
 
-SubActor::SubActor(const Craft::Vector2& position, uint64 objectId)
-	: super(L"●", position, Craft::Color::Green, objectId)
+SubActor::SubActor(const Craft::Vector2& position)
+	: super(L"●", position, Craft::Color::Green)
 {
 	sortingOrder = 9;
 }

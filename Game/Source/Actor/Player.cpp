@@ -9,7 +9,6 @@
 #include "Render/Renderer.h"
 #include "Actor/SubActor.h"
 
-
 using namespace Craft;
 
 Player::Player(const Vector2& position, uint64 objectId)
@@ -18,38 +17,89 @@ Player::Player(const Vector2& position, uint64 objectId)
 	sortingOrder = 10;
 }
 
-void Player::SetSubActorsPrevSync(uint64 syncTickCount, const google::protobuf::RepeatedPtrField<Protocol::ActorInfo>& actorInfos)
+//void Player::SetSubActorsPrevSync(uint64 syncTickCount, const google::protobuf::RepeatedPtrField<Protocol::ActorInfo>& actorInfos)
+//{
+//	for (auto actorInfo : actorInfos)
+//	{
+//		for (auto actor : _subActors)
+//		{
+//			auto actorRef = actor.lock();
+//			if (actorRef && actorRef->GetObjectId() == actorInfo.objectid())
+//			{
+//				actorRef->SetPrevSyncTick(syncTickCount);
+//				actorRef->SetPrevSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
+//				break;
+//			}
+//		}
+//	}
+//}
+//
+//void Player::SetSubActorsNextSync(uint64 syncTickCount, const google::protobuf::RepeatedPtrField<Protocol::ActorInfo>& actorInfos)
+//{
+//	for (auto actorInfo : actorInfos)
+//	{
+//		for (auto actor : _subActors)
+//		{
+//			auto actorRef = actor.lock();
+//			if (actorRef && actorRef->GetObjectId() == actorInfo.objectid())
+//			{
+//				actorRef->SetNextSyncTick(syncTickCount);
+//				actorRef->SetNextSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
+//				break;
+//			}
+//		}
+//	}
+//}
+
+void Player::UpdateTrailInfo(const google::protobuf::RepeatedPtrField<Protocol::Vector2>& trails)
 {
-	for (auto actorInfo : actorInfos)
+	_trailQueue.clear();
+	for (const Protocol::Vector2& newTrail : trails)
 	{
-		for (auto actor : _subActors)
-		{
-			auto actorRef = actor.lock();
-			if (actorRef && actorRef->GetObjectId() == actorInfo.objectid())
-			{
-				actorRef->SetPrevSyncTick(syncTickCount);
-				actorRef->SetPrevSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
-				break;
-			}
-		}
+		Craft::Vector2 pos = Vector2(newTrail.x(), newTrail.y());
+		_trailQueue.emplace_back(pos);
+	}
+
+	_trailIndex = _trailQueue.size();
+
+	shared_ptr<Level> level = owner.lock();
+	ASSERT_CRASH(level);
+
+	while (_trailIndex > _subActors.size())
+	{
+		SubActorRef subActor = level->SpawnActor<SubActor>(Vector2::Zero);
+		_subActors.emplace_back(subActor);
+	}
+
+	UpdateSubActorPos();
+}
+
+void Player::UpdateSubActorPos()
+{
+	//ASSERT_CRASH(WarningTrailPos() == false);
+
+	ASSERT_CRASH(_trailIndex == _subActors.size());
+
+	for (int32 idx = 0; idx < _trailIndex; ++idx)
+	{
+		_subActors[idx]->SetPosition(_trailQueue[idx]);
 	}
 }
 
-void Player::SetSubActorsNextSync(uint64 syncTickCount, const google::protobuf::RepeatedPtrField<Protocol::ActorInfo>& actorInfos)
+bool Player::WarningTrailPos()
 {
-	for (auto actorInfo : actorInfos)
+	int size = _trailQueue.size();
+
+	for (int i = 0;i < size - 1; ++i)
 	{
-		for (auto actor : _subActors)
+		for (int j = i + 1; j < size; ++j)
 		{
-			auto actorRef = actor.lock();
-			if (actorRef && actorRef->GetObjectId() == actorInfo.objectid())
-			{
-				actorRef->SetNextSyncTick(syncTickCount);
-				actorRef->SetNextSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
-				break;
-			}
+			if (_trailQueue[i] == _trailQueue[j])
+				return true;
 		}
 	}
+
+	return false;
 }
 
 void Player::Tick(float deltaTime)
@@ -123,11 +173,61 @@ void Player::Tick(float deltaTime)
 		_localDir = Protocol::DirectionType::DIR_DOWN;
 	}
 
+	Vector2 prevPos = GetPosition();
+
+
+
 	super::Tick(deltaTime);
 
+	// 궤적 보간
+	// 이동 발생했다면 클라에서도 자체적으로 궤적을 갱신해줌
+	//if (prevPos != position && _trailIndex != 0)
+	//{
+	//	for (int32 idx = 0; idx < _trailIndex; ++idx)
+	//	{
+	//		ASSERT_CRASH(position != _trailQueue[idx]);
+	//	}
+
+	//	int32 xDelta = position.x - prevPos.x;
+	//	int32 yDelta = position.y - prevPos.y;
+
+	//	// 좌표 값 사이의 부호 방향이 나옴
+	//	int32 xValue = (xDelta != 0) ? (xDelta / ::abs(xDelta)) : 0;
+	//	int32 yValue = (yDelta != 0) ? (yDelta / ::abs(yDelta)) : 0;
+
+	//	// 2칸 이상 움직인 겨우 1 이상의 값이 나옴
+	//	int32 xCount = ::abs(xDelta) - 1;
+	//	int32 yCount = ::abs(yDelta) - 1;
+
+	//	_trailQueue.emplace_back(prevPos);
+	//	_trailQueue.pop_front();
+
+	//	while (xCount > 0)
+	//	{
+	//		prevPos.x += xValue;
+
+	//		_trailQueue.emplace_back(prevPos);
+	//		_trailQueue.pop_front();
+	//		
+	//		--xCount;
+	//	}
+
+	//	while (yCount > 0)
+	//	{
+	//		prevPos.y += yValue;
+
+	//		_trailQueue.emplace_back(prevPos);
+	//		_trailQueue.pop_front();
+
+	//		--yCount;
+	//	}
+
+	//	UpdateSubActorPos();
+	//}
+
 	// temp : 디버그용
-	{
-		const std::wstring ypos = std::format(L"Prev : {} Cur : {} Next : {}", _prevPos.y, calcYPos, _nextPos.y);
-		Craft::Renderer::Get().Submit(ypos, Craft::Vector2(0, 2), Craft::Color::BrightWhite, 100);
-	}
+	//{
+	//	const std::wstring ypos = std::format(L"Prev : x{} y{} Cur : x{} y{}", prevPos.x, prevPos.y, position.x, position.y);
+	//	Craft::Renderer::Get().Submit(ypos, Craft::Vector2(0, 2), Craft::Color::BrightWhite, 100);
+	//}
 }
