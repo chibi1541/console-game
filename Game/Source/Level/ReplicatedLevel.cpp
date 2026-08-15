@@ -6,6 +6,8 @@
 #include <string>
 #include "Actor/Player.h"
 #include "Actor/Wall.h"
+#include "Actor/Item.h"
+#include "Utils/ObjectIdHandler.h"
 
 using namespace Protocol;
 
@@ -88,29 +90,55 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 	}
 
 
-	// TODO : 패킷 정리, 머리는 여기로 안들어 오니까 최적화 강구
+	vector<Craft::Vector2> alreadyHas;
 	vector<ReplActorRef> actors = FindActors<ReplicatedActor>();
 	for (ReplActorRef actor : actors)
 	{
-		for (auto actorInfo : prevSyncData.pkt.actors())
+		if(ObjectIdHandler::GetObjectType(actor->GetObjectId()) == ObjectType::OBJECT_SNAKE_HEAD)
+			continue;
+
+		bool bDestory = true;
+
+		for (auto field : prevSyncData.pkt.fielddata())
 		{
-			if (actor->GetObjectId() == actorInfo.objectid())
+			Craft::Vector2 pos = Craft::Vector2(field.pos().x(), field.pos().y());
+			if(pos == actor->GetPosition())
 			{
-				actor->SetPrevSyncTick(prevSyncData.syncTick);
-				actor->SetPrevSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
+				alreadyHas.push_back(pos);
+				bDestory = false;
+				break;	
+			}
+		}
+
+		if(bDestory)
+			actor->Destroy();
+
+		//for (auto actorInfo : nextSyncData.pkt.actors())
+		//{
+		//	if (actor->GetObjectId() == actorInfo.objectid())
+		//	{
+		//		actor->SetNextSyncTick(nextSyncData.syncTick);
+		//		actor->SetNextSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
+		//		break;
+		//	}
+		//}
+	}
+
+	for (auto field : prevSyncData.pkt.fielddata())
+	{
+		bool bSpawn = true;
+		Craft::Vector2 npos = Craft::Vector2(field.pos().x(), field.pos().y());
+		for(auto pos : alreadyHas)
+		{
+			if(pos == npos)
+			{
+				bSpawn = false;
 				break;
 			}
 		}
 
-		for (auto actorInfo : nextSyncData.pkt.actors())
-		{
-			if (actor->GetObjectId() == actorInfo.objectid())
-			{
-				actor->SetNextSyncTick(nextSyncData.syncTick);
-				actor->SetNextSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
-				break;
-			}
-		}
+		if(bSpawn)
+			SpawnActor<Item>(npos, 0);
 	}
 }
 

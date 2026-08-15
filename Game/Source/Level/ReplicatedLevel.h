@@ -54,6 +54,6 @@ private:
 
 	queue<LevelSyncData> _syncQueue;
 	uint64 _targetTickCount = 0;
-
+	
 };
 

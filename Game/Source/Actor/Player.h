@@ -4,8 +4,16 @@
 
 class SubActor;
 
+struct Trail
+{
+	Craft::Vector2 pos = Craft::Vector2::Zero;
+	Protocol::DirectionType prevDir = Protocol::DirectionType::DIR_NONE;
+	Protocol::DirectionType curDir = Protocol::DirectionType::DIR_NONE;
+};
+
 class Player : public ReplicatedActor
 {
+
 	TYPE_DECLARATIONS(Player, ReplicatedActor)
 public:
 	Player(const Craft::Vector2& position, uint64 objectId);
@@ -18,7 +26,7 @@ public:
 	//void SetSubActorsPrevSync(uint64 syncTickCount, const google::protobuf::RepeatedPtrField<Protocol::ActorInfo>& actorInfos);
 	//void SetSubActorsNextSync(uint64 syncTickCount, const google::protobuf::RepeatedPtrField<Protocol::ActorInfo>& actorInfos);
 
-	void UpdateTrailInfo(const google::protobuf::RepeatedPtrField<Protocol::Vector2>& trails);
+	void UpdateTrailInfo(const google::protobuf::RepeatedPtrField<Protocol::TrailData>& trails);
 
 	void UpdateSubActorPos();
 
@@ -33,7 +41,7 @@ private:
 	Protocol::DirectionType _localDir;
 
 	uint32					_trailIndex = 0;
-	deque<Craft::Vector2>	_trailQueue;
+	deque<Trail>			_trailQueue;
 	vector<SubActorRef>		_subActors;
 
 };

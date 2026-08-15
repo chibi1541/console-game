@@ -36,8 +36,8 @@ void ReplicatedActor::Tick(float deltaTime)
 
 	float delta = (b > 0) ? (_nextSyncTick - GDelayedTickCount) / b : deltaTime;
 
-	calcXPos = _prevPos.x + (_nextPos.x - _prevPos.x) * delta;
-	calcYPos = _prevPos.y + (_nextPos.y - _prevPos.y) * delta;
+	calcXPos = static_cast<int32>(_prevPos.x + (_nextPos.x - _prevPos.x) * delta);
+	calcYPos = static_cast<int32>(_prevPos.y + (_nextPos.y - _prevPos.y) * delta);
 
 	SetPosition(Vector2(calcXPos, calcYPos));
 }

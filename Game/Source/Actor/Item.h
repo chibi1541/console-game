@@ -9,6 +9,6 @@ public:
 	Item(const Craft::Vector2& position, uint64 objectId);
 
 private:
-
+	virtual void Tick(float deltaTime) override;
 };
 

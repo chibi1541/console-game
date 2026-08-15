@@ -51,16 +51,20 @@ Player::Player(const Vector2& position, uint64 objectId)
 //	}
 //}
 
-void Player::UpdateTrailInfo(const google::protobuf::RepeatedPtrField<Protocol::Vector2>& trails)
+void Player::UpdateTrailInfo(const google::protobuf::RepeatedPtrField<Protocol::TrailData>& trails)
 {
 	_trailQueue.clear();
-	for (const Protocol::Vector2& newTrail : trails)
+	for (const Protocol::TrailData& newTrail : trails)
 	{
-		Craft::Vector2 pos = Vector2(newTrail.x(), newTrail.y());
-		_trailQueue.emplace_back(pos);
+		Trail trail;
+		trail.pos = Vector2(newTrail.pos().x(), newTrail.pos().y());
+		trail.prevDir = newTrail.prevdir();
+		trail.curDir = newTrail.curdir();
+
+		_trailQueue.emplace_back(trail);
 	}
 
-	_trailIndex = _trailQueue.size();
+	_trailIndex = static_cast<int32>(_trailQueue.size());
 
 	shared_ptr<Level> level = owner.lock();
 	ASSERT_CRASH(level);
@@ -80,21 +84,23 @@ void Player::UpdateSubActorPos()
 
 	ASSERT_CRASH(_trailIndex == _subActors.size());
 
-	for (int32 idx = 0; idx < _trailIndex; ++idx)
+	for (uint32 idx = 0; idx < _trailIndex; ++idx)
 	{
-		_subActors[idx]->SetPosition(_trailQueue[idx]);
+		_subActors[idx]->SetPosition(_trailQueue[idx].pos);
+		_subActors[idx]->SetCurDir(_trailQueue[idx].curDir);
+		_subActors[idx]->SetPrevDir(_trailQueue[idx].prevDir);
 	}
 }
 
 bool Player::WarningTrailPos()
 {
-	int size = _trailQueue.size();
+	int32 size = static_cast<int32>(_trailQueue.size());
 
-	for (int i = 0;i < size - 1; ++i)
+	for (int32 i = 0;i < size - 1; ++i)
 	{
-		for (int j = i + 1; j < size; ++j)
+		for (int32 j = i + 1; j < size; ++j)
 		{
-			if (_trailQueue[i] == _trailQueue[j])
+			if (_trailQueue[i].pos == _trailQueue[j].pos)
 				return true;
 		}
 	}

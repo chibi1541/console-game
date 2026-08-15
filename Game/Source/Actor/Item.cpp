@@ -6,3 +6,8 @@ Item::Item(const Craft::Vector2& position, uint64 objectId)
 {
 	sortingOrder = 9;
 }
+
+void Item::Tick(float deltaTime)
+{
+	
+}
