@@ -22,6 +22,8 @@
     <ClCompile Include="Source\Actor\SubActor.cpp" />
     <ClCompile Include="Source\Actor\Wall.cpp" />
     <ClCompile Include="Source\Manager\GameState.cpp" />
+    <ClCompile Include="Source\Actor\LocalPlayer.cpp" />
+    <ClCompile Include="Source\Actor\RemotePlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h" />
@@ -46,6 +48,8 @@
     <ClInclude Include="Source\Actor\SubActor.h" />
     <ClInclude Include="Source\Actor\Wall.h" />
     <ClInclude Include="Source\Manager\GameState.h" />
+    <ClInclude Include="Source\Actor\LocalPlayer.h" />
+    <ClInclude Include="Source\Actor\RemotePlayer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Actor">

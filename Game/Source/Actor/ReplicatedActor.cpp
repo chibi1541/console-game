@@ -20,20 +20,10 @@ void ReplicatedActor::SetObjectId(uint64 newObjId)
 	objectId = newObjId;
 }
 
-void ReplicatedActor::SetPrevSyncPos(const Craft::Vector2& prevPos)
+void ReplicatedActor::SetPrevSyncPos(const Craft::Vector2& pos)
 {
-	_prevPos = prevPos;
-	SetPosition(Vector2(_prevPos.x/100, _prevPos.y/100));
-}
-
-void ReplicatedActor::SetPosition(const Craft::Vector2& newPosition)
-{
-	// TODO : 보정 값 서버로부터 전달 받도록 게임 모드 쪽에서 동기화
-	//Craft::Vector2 pos = newPosition;
-	//pos.x = pos.x / 100;
-	//pos.y = pos.y / 100;
-
-	Actor::SetPosition(newPosition);
+	prevPos = pos;
+	SetPosition(Vector2(prevPos.x/100, prevPos.y/100));
 }
 
 void ReplicatedActor::Tick(float deltaTime)

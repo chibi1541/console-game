@@ -4,26 +4,22 @@
 #include "Protocol/Enum.pb.h"
 #include "Player.h"
 
-SubActor::SubActor(const Craft::Vector2& position)
-	: super(L"═", position, Craft::Color::Green)
+SubActor::SubActor(const Craft::Vector2& position, Craft::Color color)
+	: super(L"═", position, color)
 {
 	sortingOrder = 9;
-
-	// x축
-	_images.emplace_back(L"═");
-	// y축
-	_images.emplace_back(L"║");
-	_images.emplace_back(L"╝");
-	_images.emplace_back(L"╔");
-	_images.emplace_back(L"╚");
-	_images.emplace_back(L"╗");
+	InitImages();
 }
 
-SubActor::SubActor(const Craft::Vector2& position, const Protocol::DirectionType& curDir, const Protocol::DirectionType& prevDir)
-	: super(L"═", position, Craft::Color::Green), _curDir(curDir), _prevDir(prevDir)
+SubActor::SubActor(const Craft::Vector2& position, Craft::Color color, const Protocol::DirectionType& curDir, const Protocol::DirectionType& prevDir)
+	: super(L"═", position, color), _curDir(curDir), _prevDir(prevDir)
 {
 	sortingOrder = 9;
+	InitImages();
+}
 
+void SubActor::InitImages()
+{
 	// x축
 	_images.emplace_back(L"═");
 	// y축

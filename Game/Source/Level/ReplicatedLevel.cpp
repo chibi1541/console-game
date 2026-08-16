@@ -5,6 +5,8 @@
 #include "Render/Renderer.h"
 #include <string>
 #include "Actor/Player.h"
+#include "Actor/LocalPlayer.h"
+#include "Actor/RemotePlayer.h"
 #include "Actor/Wall.h"
 #include "Actor/Item.h"
 #include "Utils/ObjectIdHandler.h"
@@ -58,6 +60,13 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 				Client::PlayerInfo info;
 				info.SetPlayerInfo(playerInfo);
 				_gameState->UpdatePlayerInfo(info);
+
+				// 게임 오버인 경우 처리
+				if (info.bGameOver == true)
+				{
+					player->DestroyPlayer();
+					break;
+				}
 
 				const Protocol::HeadData& head = playerInfo.head();
 				ActorInfo actorInfo = head.actor();
@@ -191,19 +200,19 @@ void ReplicatedLevel::InitPlayers(vector<Protocol::PlayerInfo> players)
 			const Protocol::HeadData& head = player.head();
 
 			Craft::Vector2 spawnPos = Craft::Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
-			shared_ptr<Player> player = SpawnActor<Player>(spawnPos, head.actor().objectid());
+			PlayerRef player = SpawnActor<LocalPlayer>(spawnPos, head.actor().objectid());
 			player->SetMoveSpeed(head.movespeed());
 			player->SetSyncDirection(head.dir());
 		}
 		else
 		{
-			// TODO : 리모트 플레이어 초기화 완성
-			// 리모트 플레이어 초기화
 			_gameState->AddPlayerInfo(info);
 			const Protocol::HeadData& head = player.head();
 
 			Craft::Vector2 spawnPos = Craft::Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
-			shared_ptr<OtherPlayer> player = SpawnActor<OtherPlayer>(spawnPos, head.actor().objectid());
+			PlayerRef player = SpawnActor<RemotePlayer>(spawnPos, head.actor().objectid());
+			player->SetMoveSpeed(head.movespeed());
+			player->SetSyncDirection(head.dir());
 		}
 	}
 }
@@ -221,7 +230,9 @@ void ReplicatedLevel::SpawnPlayer(const Protocol::PlayerInfo& player)
 	const Protocol::HeadData& head = player.head();
 
 	Craft::Vector2 spawnPos = Craft::Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
-	shared_ptr<OtherPlayer> actor = SpawnActor<OtherPlayer>(spawnPos, head.actor().objectid());
+	PlayerRef actor = SpawnActor<RemotePlayer>(spawnPos, head.actor().objectid());
+	actor->SetMoveSpeed(head.movespeed());
+	actor->SetSyncDirection(head.dir());
 }
 
 void ReplicatedLevel::Tick(float deltaTime)

@@ -24,11 +24,12 @@ public:
 	};
 
 	Player(const Craft::Vector2& position, uint64 objectId);
+	Player(const Craft::Vector2& position, Craft::Color color, uint64 objectId);
 
-	float GetMoveSpeed() const { return _moveSpeed; }
-	void SetMoveSpeed(float speed) { _moveSpeed = speed; }
-	Protocol::DirectionType GetSyncDirectionType() { return _syncDir; }
-	void SetSyncDirection(Protocol::DirectionType direction) { _syncDir = direction; }
+	float GetMoveSpeed() const { return moveSpeed; }
+	void SetMoveSpeed(float speed) { moveSpeed = speed; }
+	Protocol::DirectionType GetSyncDirectionType() { return syncDir; }
+	void SetSyncDirection(Protocol::DirectionType direction) { syncDir = direction; }
 
 	void UpdateTrailInfo(const google::protobuf::RepeatedPtrField<Protocol::TrailData>& trails);
 	void UpdateNextTrailInfo(const google::protobuf::RepeatedPtrField<Protocol::TrailData>& trails);
@@ -41,21 +42,24 @@ public:
 
 	const Trail GetNextTrail(Craft::Vector2& pos) const;
 
-private:
+	virtual void DestroyPlayer();
+
+protected:
 	virtual void Tick(float deltaTime) override;
 
+protected:
+	float						moveSpeed = 0.f;
+	Protocol::DirectionType		syncDir;
+
+	vector<std::wstring>		images;
+
+	uint32						trailIndex = 0;
+	deque<Trail>				trailQueue;
+	vector<SubActorRef>			subActors;
+
+	deque<Trail>				nextTrails;
+	uint32						nextTrailIndex = 0;
 private:
-	float _moveSpeed = 0.f;
-	Protocol::DirectionType _syncDir;
-	Protocol::DirectionType _localDir;
-
-	vector<std::wstring> _images;
-
-	uint32					_trailIndex = 0;
-	deque<Trail>			_trailQueue;
-	vector<SubActorRef>		_subActors;
-
-	deque<Trail>			_nextTrails;
-	uint32					_nextTrailIndex = 0;
+	
 
 };

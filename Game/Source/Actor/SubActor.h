@@ -9,9 +9,8 @@ class SubActor : public Craft::Actor
 	TYPE_DECLARATIONS(SubActor, Craft::Actor);
 
 public:
-	SubActor(const Craft::Vector2& position);
-	SubActor(const Craft::Vector2& position, const Protocol::DirectionType& curDir, const Protocol::DirectionType& prevDir);
-	//SubActor(const std::wstring& image, const Craft::Vector2& position, Craft::Color color, uint64 objectId);
+	SubActor(const Craft::Vector2& position, Craft::Color color);
+	SubActor(const Craft::Vector2& position, Craft::Color color, const Protocol::DirectionType& curDir, const Protocol::DirectionType& prevDir);
 
 	const Protocol::DirectionType& GetCurDir() const { return _curDir; }
 	void SetCurDir(const Protocol::DirectionType& dirType) { _curDir = dirType; }
@@ -19,6 +18,8 @@ public:
 	void SetPrevDir(const Protocol::DirectionType& dirType) { _prevDir = dirType; }
 
 private:
+	void InitImages();
+
 	virtual void Tick(float deltaTime) override;
 
 private:

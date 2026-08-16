@@ -103,6 +103,8 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Actor\LocalPlayer.cpp" />
+    <ClCompile Include="Source\Actor\RemotePlayer.cpp" />
     <ClCompile Include="Source\Manager\GameState.cpp" />
     <ClCompile Include="Source\Actor\Item.cpp" />
     <ClCompile Include="Source\Actor\OtherPlayer.cpp" />
@@ -128,6 +130,8 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     <ClCompile Include="Source\Actor\Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Actor\LocalPlayer.h" />
+    <ClInclude Include="Source\Actor\RemotePlayer.h" />
     <ClInclude Include="Source\Manager\GameState.h" />
     <ClInclude Include="Source\Actor\Item.h" />
     <ClInclude Include="Source\Actor\OtherPlayer.h" />
