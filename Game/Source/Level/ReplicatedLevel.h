@@ -46,6 +46,13 @@ public:
 
 	void DestroyReplicatedActor(uint64 objectId);
 
+	void GameStart(float remainCount);
+
+	void CountGameStart(float deltaTime);
+
+	void WaitGameStart(float deltaTime);
+
+	void ShowGameResult();
 
 protected:
 	virtual void UpdateReplicated();
@@ -64,5 +71,13 @@ private:
 	uint64 _targetTickCount = 0;
 
 	std::unique_ptr<class GameState> _gameState;
-};
+	float _elapsedTime = 0.f;
 
+	std::vector<std::vector<wstring>> numbers;
+	std::vector<std::vector<wstring>> win;
+	std::vector<std::vector<wstring>> lose;
+
+	uint32 _width;
+	uint32 _height;
+
+};

@@ -18,6 +18,112 @@ void ReplicatedLevel::OnInitialized()
 {
 	super::OnInitialized();
 	_gameState = make_unique<GameState>();
+	std::vector<wstring> one = {
+		L"  █  ",
+		L" ██  ",
+		L"  █  ",
+		L"  █  ",
+		L"█████"
+	};
+	numbers.emplace_back(one);
+
+	std::vector<wstring> two = {
+		L"█████",
+		L"    █",
+		L"█████",
+		L"█    ",
+		L"█████"
+	};
+	numbers.emplace_back(two);
+
+	std::vector<wstring> three = {
+		L"█████",
+		L"    █",
+		L" ████",
+		L"    █",
+		L"█████"
+	};
+	numbers.emplace_back(three);
+
+	std::vector<wstring> four = {
+		L"█   █",
+		L"█   █",
+		L"█████",
+		L"    █",
+		L"    █"
+	};
+	numbers.emplace_back(four);
+
+	std::vector<wstring> five = {
+		L"█████",
+		L"█    ",
+		L"████ ",
+		L"    █",
+		L"████ "
+	};
+	numbers.emplace_back(five);
+
+
+	std::vector<wstring> w = {
+		L"█   █",
+		L"█   █",
+		L"█ █ █",
+		L"██ ██",
+		L"█   █"
+	};
+	win.emplace_back(w);
+	std::vector<wstring> i = {
+		L"  █  ",
+		L"  █  ",
+		L"  █  ",
+		L"  █  ",
+		L"  █  "
+	};
+	win.emplace_back(i);
+	std::vector<wstring> n = {
+		L"█   █",
+		L"██  █",
+		L"█ █ █",
+		L"█  ██",
+		L"█   █"
+	};
+	win.emplace_back(n);
+
+	std::vector<wstring> l = {
+		L"█    ",
+		L"█    ",
+		L"█    ",
+		L"█    ",
+		L"█████"
+	};
+	lose.emplace_back(l);
+
+	std::vector<wstring> o = {
+		L" ███ ",
+		L"█   █",
+		L"█   █",
+		L"█   █",
+		L" ███ "
+	};
+	lose.emplace_back(o);
+
+	std::vector<wstring> s = {
+		L"█████",
+		L"█    ",
+		L"█████",
+		L"    █",
+		L"█████"
+	};
+	lose.emplace_back(s);
+
+	std::vector<wstring> e = {
+		L"█████",
+		L"█    ",
+		L"████ ",
+		L"█    ",
+		L"█████"
+	};
+	lose.emplace_back(e);
 }
 
 void ReplicatedLevel::Push(JobRef job)
@@ -86,7 +192,7 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 		for (auto playerInfo : nextSyncData.pkt.players())
 		{
 			// 파괴 예정이므로 갱신하지 않음
-			if(player->IsActive() == false)
+			if (player->IsActive() == false)
 				continue;
 
 			if (player->GetObjectId() == playerInfo.head().actor().objectid())
@@ -111,7 +217,7 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 	vector<ReplActorRef> actors = FindActors<ReplicatedActor>();
 	for (ReplActorRef actor : actors)
 	{
-		if(ObjectIdHandler::GetObjectType(actor->GetObjectId()) == ObjectType::OBJECT_SNAKE_HEAD)
+		if (ObjectIdHandler::GetObjectType(actor->GetObjectId()) == ObjectType::OBJECT_SNAKE_HEAD)
 			continue;
 
 		bool bDestory = true;
@@ -119,15 +225,15 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 		for (auto field : prevSyncData.pkt.fielddata())
 		{
 			Craft::Vector2 pos = Craft::Vector2(field.pos().x(), field.pos().y());
-			if(pos == actor->GetPosition())
+			if (pos == actor->GetPosition())
 			{
 				alreadyHas.push_back(pos);
 				bDestory = false;
-				break;	
+				break;
 			}
 		}
 
-		if(bDestory)
+		if (bDestory)
 			actor->Destroy();
 	}
 
@@ -135,16 +241,16 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 	{
 		bool bSpawn = true;
 		Craft::Vector2 npos = Craft::Vector2(field.pos().x(), field.pos().y());
-		for(auto pos : alreadyHas)
+		for (auto pos : alreadyHas)
 		{
-			if(pos == npos)
+			if (pos == npos)
 			{
 				bSpawn = false;
 				break;
 			}
 		}
 
-		if(bSpawn)
+		if (bSpawn)
 			SpawnActor<Item>(npos, 0);
 	}
 }
@@ -164,23 +270,123 @@ void ReplicatedLevel::DestroyReplicatedActor(uint64 objectId)
 	}
 }
 
+void ReplicatedLevel::GameStart(float remainCount)
+{
+	ASSERT_CRASH(_gameState);
+
+	_gameState->bGameStart = true;
+	_gameState->remainCount = remainCount;
+}
+
+void ReplicatedLevel::CountGameStart(float deltaTime)
+{
+	_gameState->remainCount -= deltaTime;
+
+	if (_gameState->remainCount <= 0.f)
+	{
+		GIsGameStart = true;
+		_gameState->remainCount = 0.f;
+		return;
+	}
+	else
+	{
+		int32 index = static_cast<int32>(_gameState->remainCount);
+		index = min(index, numbers.size() - 1);
+		int32 count = 0;
+		for (auto text : numbers[index])
+		{
+			Craft::Renderer::Get().Submit(text, Craft::Vector2((_width / 2) - 3, (_height / 2) - 3 + count), Craft::Color::BrightWhite, 50);
+			++count;
+		}
+	}
+
+	vector<Client::PlayerInfo> players = _gameState->GetAllPlayerInfo();
+	std::sort(players.begin(), players.end(), std::greater());
+	int32 indexCount = 0;
+	for (Client::PlayerInfo player : players)
+	{
+		wstring wName = FileUtils::Convert(player.name);
+		wstring wMark = (player.bGameOver) ? L"☠ " : L"§";
+		if (player.userId == GLocalUserId)
+		{
+			Craft::Renderer::Get().Submit(std::format(L"{} {}(You) ", wMark, wName), Craft::Vector2(85, (indexCount * 3) + 1), player.color, 50);
+		}
+		else
+		{
+			Craft::Renderer::Get().Submit(std::format(L"{} {} ", wMark, wName), Craft::Vector2(85, (indexCount * 3) + 1), player.color, 50);
+		}
+
+		Craft::Renderer::Get().Submit(std::format(L" | Score : {} ", player.score), Craft::Vector2(85, (indexCount * 3) + 2), Craft::Color::BrightWhite, 50);
+
+		++indexCount;
+	}
+
+}
+
+void ReplicatedLevel::WaitGameStart(float deltaTime)
+{
+	static float tickCount = 0.f;
+	tickCount += deltaTime * 5;
+
+	const WCHAR spinner[] = { L'|', L'/', L'─', L'\\' };
+	WCHAR cur = spinner[static_cast<int32>(tickCount) % 4];
+	Craft::Renderer::Get().Submit(std::format(L"{} 플레이어를 기다리는 중...({}/{}) ", std::wstring(1, cur), _gameState->GetCurPlayerCount(), GNeedPlayerCount), Craft::Vector2(85, _height - 5), Craft::Color::BrightWhite, 50);
+}
+
+void ReplicatedLevel::ShowGameResult()
+{
+	if(GWin)
+	{
+		int32 offset = 0;
+		for(auto strings : win)
+		{
+			int32 index = 0;
+			for (auto string : strings)
+			{
+				Craft::Renderer::Get().Submit(string, Craft::Vector2(85 + (offset * 6), _height - 8 + index), Craft::Color::BrightWhite, 50);
+				++index;
+			}
+
+			++offset;
+		}
+	}
+	else
+	{
+		int32 offset = 0;
+
+		for (auto strings : lose)
+		{
+			int32 index = 0;
+			for (auto string : strings)
+			{
+				Craft::Renderer::Get().Submit(string, Craft::Vector2(85 + (offset * 6), _height - 8 + index), Craft::Color::BrightWhite, 50);
+				++index;
+			}
+			++offset;
+		}
+	}
+}
+
 void ReplicatedLevel::InitField(uint32 width, uint32 height)
 {
+	_width = width;
+	_height = height;
+
 	// 벽 생성
 	for (uint32 idx = 0; idx < width; ++idx)
 	{
 		//if(idx % 3 == 0)
-			SpawnActor<Wall>(Craft::Vector2(idx, 0));
+		SpawnActor<Wall>(Craft::Vector2(idx, 0));
 		//else if(idx % 3 == 2)
-			SpawnActor<Wall>(Craft::Vector2(idx, height - 1));
+		SpawnActor<Wall>(Craft::Vector2(idx, height - 1));
 	}
 
 	for (uint32 idx = 0; idx < height; ++idx)
 	{
 		//if (idx % 3 == 0)
-			SpawnActor<Wall>(Craft::Vector2(0, idx));
+		SpawnActor<Wall>(Craft::Vector2(0, idx));
 		//else if(idx % 3 == 2)
-			SpawnActor<Wall>(Craft::Vector2(width - 1, idx));
+		SpawnActor<Wall>(Craft::Vector2(width - 1, idx));
 	}
 }
 
@@ -188,12 +394,12 @@ void ReplicatedLevel::InitPlayers(vector<Protocol::PlayerInfo> players)
 {
 	ASSERT_CRASH(_gameState);
 
-	for(const Protocol::PlayerInfo& player : players)
+	for (const Protocol::PlayerInfo& player : players)
 	{
 		Client::PlayerInfo info;
 		info.SetPlayerInfo(player);
 
-		if(info.userId == GLocalUserId)
+		if (info.userId == GLocalUserId)
 		{
 			_gameState->UpdatePlayerInfo(info);
 			const Protocol::HeadData& head = player.head();
@@ -220,7 +426,7 @@ void ReplicatedLevel::SpawnPlayer(const Protocol::PlayerInfo& player)
 {
 	ASSERT_CRASH(_gameState);
 
-	if(player.id() == GLocalUserId)
+	if (player.id() == GLocalUserId)
 		return;
 
 	Client::PlayerInfo info;
@@ -238,36 +444,49 @@ void ReplicatedLevel::Tick(float deltaTime)
 {
 	UpdateReplicated();
 
-	// POSTPHONE_TICK 값만큼 이전 서버 데이터로 갱신 및 보간
-	GDelayedTickCount = ::GetTickCount64() - POSTPHONE_TICK;
-
-	// Server SyncData 변경
-	if (GDelayedTickCount >= _targetTickCount)
+	if (_gameState->bGameStart == true && _gameState->remainCount > 0.f)
 	{
-		LevelSyncData prevData;
-		LevelSyncData nextData;
-		
-		do
-		{
-			if (false == _syncQueue.empty())
-			{
-				LevelSyncData front = _syncQueue.front();
-				// 이전 데이터가 있다면 기준 데이터로 설정하고 queue에서 제거
-				if (front.syncTick < GDelayedTickCount)
-				{
-					prevData = front;
-					_syncQueue.pop();
-				}
-				else
-				{
-					// 목표 싱크 데이터 갱신
-					nextData = front;
-					_targetTickCount = front.syncTick;
-				}
-			}
-		} while (false == _syncQueue.empty() && nextData.syncTick == 0);
+		CountGameStart(deltaTime);
+	}
+	else if (_gameState->bGameStart == false)
+	{
+		WaitGameStart(deltaTime);
+	}
 
-		UpdateSyncData(prevData, nextData);
+	if (GIsGameStart)
+	{
+
+		// POSTPHONE_TICK 값만큼 이전 서버 데이터로 갱신 및 보간
+		GDelayedTickCount = ::GetTickCount64() - POSTPHONE_TICK;
+
+		// Server SyncData 변경
+		if (GDelayedTickCount >= _targetTickCount)
+		{
+			LevelSyncData prevData;
+			LevelSyncData nextData;
+
+			do
+			{
+				if (false == _syncQueue.empty())
+				{
+					LevelSyncData front = _syncQueue.front();
+					// 이전 데이터가 있다면 기준 데이터로 설정하고 queue에서 제거
+					if (front.syncTick < GDelayedTickCount)
+					{
+						prevData = front;
+						_syncQueue.pop();
+					}
+					else
+					{
+						// 목표 싱크 데이터 갱신
+						nextData = front;
+						_targetTickCount = front.syncTick;
+					}
+				}
+			} while (false == _syncQueue.empty() && nextData.syncTick == 0);
+
+			UpdateSyncData(prevData, nextData);
+		}
 	}
 
 	super::Tick(deltaTime);
@@ -276,17 +495,17 @@ void ReplicatedLevel::Tick(float deltaTime)
 	vector<Client::PlayerInfo> players = _gameState->GetAllPlayerInfo();
 	std::sort(players.begin(), players.end(), std::greater());
 	int32 indexCount = 0;
-	for(Client::PlayerInfo player : players)
+	for (Client::PlayerInfo player : players)
 	{
 		wstring wName = FileUtils::Convert(player.name);
 		wstring wMark = (player.bGameOver) ? L"☠ " : L"§";
-		if(player.userId == GLocalUserId)
+		if (player.userId == GLocalUserId)
 		{
 			Craft::Renderer::Get().Submit(std::format(L"{} {}(You) ", wMark, wName), Craft::Vector2(85, (indexCount * 3) + 1), player.color, 50);
 		}
 		else
 		{
-			Craft::Renderer::Get().Submit(std::format(L"{} {} ", wMark , wName), Craft::Vector2(85, (indexCount * 3) + 1), player.color, 50);
+			Craft::Renderer::Get().Submit(std::format(L"{} {} ", wMark, wName), Craft::Vector2(85, (indexCount * 3) + 1), player.color, 50);
 		}
 
 		Craft::Renderer::Get().Submit(std::format(L" | Score : {} ", player.score), Craft::Vector2(85, (indexCount * 3) + 2), Craft::Color::BrightWhite, 50);
@@ -294,4 +513,8 @@ void ReplicatedLevel::Tick(float deltaTime)
 		++indexCount;
 	}
 
+	if(GGameOver)
+	{
+		ShowGameResult();
+	}
 }

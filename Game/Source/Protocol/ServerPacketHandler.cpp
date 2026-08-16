@@ -25,7 +25,12 @@ bool Handle_INVALID(PacketSessionRef& session, BYTE* buffer, int32 len)
 bool Handle_S_LOGIN(PacketSessionRef& session, Protocol::S_LOGIN& pkt)
 {
 	if (false == pkt.success())
+	{
+		// 엔진 종료처리
+		Engine::Get().Quit();
+		GEngineQuit = true;
 		return false;
+	}
 
 	std::shared_ptr<ReplicatedLevel> level = Cast<ReplicatedLevel>(Engine::Get().GetLevel());
 	ASSERT_CRASH(level);
@@ -49,6 +54,7 @@ bool Handle_S_ENTER_GAME(PacketSessionRef& session, Protocol::S_ENTER_GAME& pkt)
 	if (false == pkt.success())
 		return false;
 
+	GNeedPlayerCount = pkt.needplayer();
 	std::shared_ptr<ReplicatedLevel> level = Cast<ReplicatedLevel>(Engine::Get().GetLevel());
 	ASSERT_CRASH(level);
 
@@ -67,6 +73,20 @@ bool Handle_S_ENTER_GAME(PacketSessionRef& session, Protocol::S_ENTER_GAME& pkt)
 		JobRef job = std::make_shared<Job>(level, &ReplicatedLevel::InitPlayers, std::move(players));
 		level->Push(job);
 	}
+
+	return true;
+}
+
+bool Handle_S_START_GAME(PacketSessionRef& session, Protocol::S_START_GAME& pkt)
+{
+	if (false == pkt.success())
+		return false;
+
+	std::shared_ptr<ReplicatedLevel> level = Cast<ReplicatedLevel>(Engine::Get().GetLevel());
+	ASSERT_CRASH(level);
+
+	JobRef job = std::make_shared<Job>(level, &ReplicatedLevel::GameStart, static_cast<float>(pkt.counttime()));
+	level->Push(job);
 
 	return true;
 }
@@ -130,4 +150,15 @@ bool Handle_S_DESTROY_ACTOR(PacketSessionRef& session, Protocol::S_DESTROY_ACTOR
 	level->Push(job);
 
 	return false;
+}
+
+bool Handle_S_GAME_RESULT(PacketSessionRef& session, Protocol::S_GAME_RESULT& pkt)
+{
+	ReplLevelRef level = Cast<ReplicatedLevel>(Engine::Get().GetLevel());
+	ASSERT_CRASH(level);
+
+	GWin = pkt.winplayerid() == GLocalUserId;
+	GGameOver = true;
+
+	return true;
 }

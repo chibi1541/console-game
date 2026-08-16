@@ -13,11 +13,14 @@ enum : uint16
 	PKT_S_LOGIN = 1001,
 	PKT_C_ENTER_GAME = 1002,
 	PKT_S_ENTER_GAME = 1003,
-	PKT_S_SPAWN_ACTOR = 1004,
-	PKT_S_SPAWN_PLAYER = 1005,
-	PKT_C_MOVE_ACTOR = 1006,
-	PKT_S_UPDATE_ROOM = 1007,
-	PKT_S_DESTROY_ACTOR = 1008,
+	PKT_C_EXIT_GAME = 1004,
+	PKT_S_START_GAME = 1005,
+	PKT_S_SPAWN_ACTOR = 1006,
+	PKT_S_SPAWN_PLAYER = 1007,
+	PKT_C_MOVE_ACTOR = 1008,
+	PKT_S_UPDATE_ROOM = 1009,
+	PKT_S_DESTROY_ACTOR = 1010,
+	PKT_S_GAME_RESULT = 1011,
 };
 
 bool Handle_INVALID(PacketSessionRef& session, BYTE* buffer, int32 len);
@@ -25,10 +28,12 @@ bool Handle_INVALID(PacketSessionRef& session, BYTE* buffer, int32 len);
 // PKT handle 함수 자동 선언, 선언부만 만들어주기 때문에 정의부를 따로 생성해야 함
 bool Handle_S_LOGIN(PacketSessionRef& session, Protocol::S_LOGIN& pkt);
 bool Handle_S_ENTER_GAME(PacketSessionRef& session, Protocol::S_ENTER_GAME& pkt);
+bool Handle_S_START_GAME(PacketSessionRef& session, Protocol::S_START_GAME& pkt);
 bool Handle_S_SPAWN_ACTOR(PacketSessionRef& session, Protocol::S_SPAWN_ACTOR& pkt);
 bool Handle_S_SPAWN_PLAYER(PacketSessionRef& session, Protocol::S_SPAWN_PLAYER& pkt);
 bool Handle_S_UPDATE_ROOM(PacketSessionRef& session, Protocol::S_UPDATE_ROOM& pkt);
 bool Handle_S_DESTROY_ACTOR(PacketSessionRef& session, Protocol::S_DESTROY_ACTOR& pkt);
+bool Handle_S_GAME_RESULT(PacketSessionRef& session, Protocol::S_GAME_RESULT& pkt);
 
 // PacketHandler 클래스 자동화
 class ServerPacketHandler
@@ -42,10 +47,12 @@ public:
 		// Handler 함수 등록 자동화
 		GPacketHandler[PKT_S_LOGIN] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_LOGIN>(Handle_S_LOGIN, session, buffer, len); };
 		GPacketHandler[PKT_S_ENTER_GAME] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_ENTER_GAME>(Handle_S_ENTER_GAME, session, buffer, len); };
+		GPacketHandler[PKT_S_START_GAME] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_START_GAME>(Handle_S_START_GAME, session, buffer, len); };
 		GPacketHandler[PKT_S_SPAWN_ACTOR] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_SPAWN_ACTOR>(Handle_S_SPAWN_ACTOR, session, buffer, len); };
 		GPacketHandler[PKT_S_SPAWN_PLAYER] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_SPAWN_PLAYER>(Handle_S_SPAWN_PLAYER, session, buffer, len); };
 		GPacketHandler[PKT_S_UPDATE_ROOM] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_UPDATE_ROOM>(Handle_S_UPDATE_ROOM, session, buffer, len); };
 		GPacketHandler[PKT_S_DESTROY_ACTOR] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_DESTROY_ACTOR>(Handle_S_DESTROY_ACTOR, session, buffer, len); };
+		GPacketHandler[PKT_S_GAME_RESULT] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_GAME_RESULT>(Handle_S_GAME_RESULT, session, buffer, len); };
 
 	}
 
@@ -58,6 +65,7 @@ public:
 	// sendbuffer 작성 자동화, 선언부만 만들어주기 때문에 정의부를 따로 생성해야 함
 	static SendBufferRef MakeSendBuffer(Protocol::C_LOGIN& pkt) {return MakeSendBuffer(pkt, PKT_C_LOGIN); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_ENTER_GAME& pkt) {return MakeSendBuffer(pkt, PKT_C_ENTER_GAME); }
+	static SendBufferRef MakeSendBuffer(Protocol::C_EXIT_GAME& pkt) {return MakeSendBuffer(pkt, PKT_C_EXIT_GAME); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_MOVE_ACTOR& pkt) {return MakeSendBuffer(pkt, PKT_C_MOVE_ACTOR); }
 
 

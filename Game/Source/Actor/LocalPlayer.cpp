@@ -6,6 +6,7 @@
 #include "Protocol/Protocol.pb.h"
 #include "ServerCore/Service.h"
 #include "Protocol/Enum.pb.h"
+#include "Manager/GameState.h"
 
 using namespace Craft;
 
@@ -29,9 +30,16 @@ void LocalPlayer::Tick(float deltaTime)
 
 	if (Input::Get().GetKeyDown(VK_ESCAPE))
 	{
+		Protocol::C_EXIT_GAME pkt;
+		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
+		GService.get()->Broadcast(sendBuffer);
+
 		QuitGame();
 		return;
 	}
+
+	if(GIsGameStart == false || GGameOver == true)
+		return;
 
 	if (Input::Get().GetKeyDown(VK_RIGHT))
 	{

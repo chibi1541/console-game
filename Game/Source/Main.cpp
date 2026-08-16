@@ -64,6 +64,9 @@ int main()
 			while (true)
 			{
 				GService->GetIocpCore()->Dispatch();
+
+				if(GEngineQuit)
+					break;
 			}
 		});
 

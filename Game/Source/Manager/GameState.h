@@ -59,12 +59,23 @@ public:
 	const Client::PlayerInfo& GetLocalPlayer() const;
 	vector<Client::PlayerInfo> GetAllPlayerInfo() const { return _playerInfos; }
 
+	uint32 GetCurPlayerCount() const {return static_cast<uint32>(_playerInfos.size()); }
+
+	bool bGameStart = false;
+	float remainCount = 0.f;
+
 private:
 	vector<Client::PlayerInfo> _playerInfos;
+
+
 };
 
 extern uint64 GLocalUserId;
 extern uint64 GLocalActorId;
+extern uint32 GNeedPlayerCount;
+extern bool GIsGameStart;
+extern bool GGameOver;
+extern bool GWin;
 
 
 

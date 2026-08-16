@@ -3,6 +3,10 @@
 
 uint64 GLocalUserId = 0;
 uint64 GLocalActorId = 0;
+uint32 GNeedPlayerCount = 0;
+bool GIsGameStart = false;
+bool GGameOver = false;
+bool GWin = false;
 
 void GameState::InitLocalPlayer(const Client::PlayerInfo& player)
 {
