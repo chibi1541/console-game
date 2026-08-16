@@ -7,6 +7,7 @@ class LocalPlayer : public Player
 
 public:
 	LocalPlayer(const Craft::Vector2& position, uint64 objectId);
+	LocalPlayer(const Craft::Vector2& position, Craft::Color color, uint64 objectId);
 	
 
 private:

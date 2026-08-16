@@ -125,6 +125,7 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     <ClCompile Include="Source\Protocol\Protocol.pb.cc" />
     <ClCompile Include="Source\Protocol\ServerPacketHandler.cpp" />
     <ClCompile Include="Source\Protocol\Struct.pb.cc" />
+    <ClCompile Include="Source\Utils\HelperFuncs.cpp" />
     <ClCompile Include="Source\Utils\ObjectIdHandler.cpp" />
     <ClCompile Include="Source\Actor\SubActor.cpp" />
     <ClCompile Include="Source\Actor\Wall.cpp" />

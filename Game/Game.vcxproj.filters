@@ -24,6 +24,7 @@
     <ClCompile Include="Source\Manager\GameState.cpp" />
     <ClCompile Include="Source\Actor\LocalPlayer.cpp" />
     <ClCompile Include="Source\Actor\RemotePlayer.cpp" />
+    <ClCompile Include="Source\Utils\HelperFuncs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h" />

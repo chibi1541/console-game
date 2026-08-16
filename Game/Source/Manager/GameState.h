@@ -1,5 +1,6 @@
-#pragma once
+﻿#pragma once
 #include "Protocol/Struct.pb.h"
+#include "Utils/HelperFuncs.h"
 
 NAMESPACE_BEGIN(Client)
 
@@ -7,15 +8,27 @@ struct PlayerInfo
 {
 	uint64 userId = 0;
 	std::string name = {};
+	Craft::Color color = Craft::Color::Green;
 	uint32 score = 0;
 	uint64 objectId = 0;
 	bool bGameOver = false;
+
+	inline bool operator<(const PlayerInfo& other)
+	{
+		return score < other.score;
+	}
+
+	inline bool operator>(const PlayerInfo& other)
+	{
+		return score > other.score;
+	}
 
 	void SetPlayerInfo(const PlayerInfo& other )
 	{
 		userId = other.objectId;
 		name = other.name;
 		score = other.score;
+		color = other.color;
 		objectId = other.objectId;
 		bGameOver = other.bGameOver;
 	}
@@ -25,6 +38,7 @@ struct PlayerInfo
 		userId = other.id();
 		name = other.name();
 		score = other.score();
+		color = Utils::ConvertColor(other.color());
 		bGameOver = other.isgameover();
 		objectId = static_cast<uint64>(other.head().actor().objectid());
 	}
@@ -43,7 +57,7 @@ public:
 	void UpdatePlayerInfo(const Client::PlayerInfo& player);
 
 	const Client::PlayerInfo& GetLocalPlayer() const;
-	const vector<Client::PlayerInfo>& GetRemotePlayerInfo() const { return _playerInfos; }
+	vector<Client::PlayerInfo> GetAllPlayerInfo() const { return _playerInfos; }
 
 private:
 	vector<Client::PlayerInfo> _playerInfos;

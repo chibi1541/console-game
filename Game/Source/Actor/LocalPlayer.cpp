@@ -15,6 +15,12 @@ LocalPlayer::LocalPlayer(const Craft::Vector2& position, uint64 objectId)
 	
 }
 
+LocalPlayer::LocalPlayer(const Craft::Vector2& position, Craft::Color color, uint64 objectId)
+	: super(position, color, objectId)
+
+{
+}
+
 void LocalPlayer::Tick(float deltaTime)
 {
 	

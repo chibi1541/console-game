@@ -11,6 +11,7 @@
 #include "Actor/SubActor.h"
 #include "Manager/GameState.h"
 #include "Level/ReplicatedLevel.h"
+#include "Utils/HelperFuncs.h"
 
 using namespace Craft;
 
@@ -32,6 +33,7 @@ bool Handle_S_LOGIN(PacketSessionRef& session, Protocol::S_LOGIN& pkt)
 	Client::PlayerInfo localPlayer;
 	localPlayer.userId = pkt.user().id();
 	localPlayer.name = pkt.user().name();
+	localPlayer.color = Utils::ConvertColor(pkt.user().color());
 
 	JobRef job = std::make_shared<Job>(level, &ReplicatedLevel::InitLocalPlayer, std::move(localPlayer));
 	level->Push(job);

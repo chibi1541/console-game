@@ -19,6 +19,7 @@ public:
 	virtual void OnConnected()
 	{
 		Protocol::C_LOGIN pkt;
+		pkt.set_name("Player");
 		auto sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
 		Send(sendBuffer);
 	}

@@ -195,12 +195,11 @@ void ReplicatedLevel::InitPlayers(vector<Protocol::PlayerInfo> players)
 
 		if(info.userId == GLocalUserId)
 		{
-			// 로컬 플레이어 초기화
-			_gameState->InitLocalPlayer(info);
+			_gameState->UpdatePlayerInfo(info);
 			const Protocol::HeadData& head = player.head();
 
 			Craft::Vector2 spawnPos = Craft::Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
-			PlayerRef player = SpawnActor<LocalPlayer>(spawnPos, head.actor().objectid());
+			PlayerRef player = SpawnActor<LocalPlayer>(spawnPos, info.color, head.actor().objectid());
 			player->SetMoveSpeed(head.movespeed());
 			player->SetSyncDirection(head.dir());
 		}
@@ -210,7 +209,7 @@ void ReplicatedLevel::InitPlayers(vector<Protocol::PlayerInfo> players)
 			const Protocol::HeadData& head = player.head();
 
 			Craft::Vector2 spawnPos = Craft::Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
-			PlayerRef player = SpawnActor<RemotePlayer>(spawnPos, head.actor().objectid());
+			PlayerRef player = SpawnActor<RemotePlayer>(spawnPos, info.color, head.actor().objectid());
 			player->SetMoveSpeed(head.movespeed());
 			player->SetSyncDirection(head.dir());
 		}
@@ -230,7 +229,7 @@ void ReplicatedLevel::SpawnPlayer(const Protocol::PlayerInfo& player)
 	const Protocol::HeadData& head = player.head();
 
 	Craft::Vector2 spawnPos = Craft::Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
-	PlayerRef actor = SpawnActor<RemotePlayer>(spawnPos, head.actor().objectid());
+	PlayerRef actor = SpawnActor<RemotePlayer>(spawnPos, info.color, head.actor().objectid());
 	actor->SetMoveSpeed(head.movespeed());
 	actor->SetSyncDirection(head.dir());
 }
@@ -272,5 +271,27 @@ void ReplicatedLevel::Tick(float deltaTime)
 	}
 
 	super::Tick(deltaTime);
+
+	// 게임 UI 출력
+	vector<Client::PlayerInfo> players = _gameState->GetAllPlayerInfo();
+	std::sort(players.begin(), players.end(), std::greater());
+	int32 indexCount = 0;
+	for(Client::PlayerInfo player : players)
+	{
+		wstring wName = FileUtils::Convert(player.name);
+		wstring wMark = (player.bGameOver) ? L"☠ " : L"§";
+		if(player.userId == GLocalUserId)
+		{
+			Craft::Renderer::Get().Submit(std::format(L"{} {}(You) ", wMark, wName), Craft::Vector2(85, (indexCount * 3) + 1), player.color, 50);
+		}
+		else
+		{
+			Craft::Renderer::Get().Submit(std::format(L"{} {} ", wMark , wName), Craft::Vector2(85, (indexCount * 3) + 1), player.color, 50);
+		}
+
+		Craft::Renderer::Get().Submit(std::format(L" | Score : {} ", player.score), Craft::Vector2(85, (indexCount * 3) + 2), Craft::Color::BrightWhite, 50);
+
+		++indexCount;
+	}
 
 }
