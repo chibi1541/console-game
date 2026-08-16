@@ -2,6 +2,7 @@
 #include "Level/Level.h"
 #include "ServerCore/Job.h"
 #include "Protocol/Protocol.pb.h"
+#include "Manager/GameState.h"
 
 struct LevelSyncData
 {
@@ -31,13 +32,18 @@ public:
 public:
 	void Push(JobRef job);
 
+	void SetLocalPlayer(Client::PlayerInfo localPlayer);
+
+	void InitField(uint32 width, uint32 height);
+
+	void InitPlayers(vector<Protocol::PlayerInfo> players);
+
 	void AddLevelSnapshot(uint64 syncTick, Protocol::S_UPDATE_ROOM pkt);
 
 	void UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData nextSyncData);
 
 	void DestroyReplicatedActor(uint64 objectId);
 
-	void InitField(uint32 width, uint32 height);
 
 protected:
 	virtual void UpdateReplicated();
@@ -54,6 +60,7 @@ private:
 
 	queue<LevelSyncData> _syncQueue;
 	uint64 _targetTickCount = 0;
-	
+
+	std::unique_ptr<class GameState> _gameState;
 };
 

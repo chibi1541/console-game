@@ -10,6 +10,7 @@
 #include "Utils/ObjectIdHandler.h"
 #include "Actor/Item.h"
 #include "Actor/SubActor.h"
+#include "Manager/GameState.h"
 
 PacketHandlerFunc GPacketHandler[UINT16_MAX];
 
@@ -23,9 +24,17 @@ bool Handle_S_LOGIN(PacketSessionRef& session, Protocol::S_LOGIN& pkt)
 	if (false == pkt.success())
 		return false;
 
+	std::shared_ptr<ReplicatedLevel> level = Cast<ReplicatedLevel>(Engine::Get().GetLevel());
+	ASSERT_CRASH(level);
+
+	Client::PlayerInfo localPlayer;
+	localPlayer.userId = pkt.user().id();
+	localPlayer.name = pkt.user().name();
+
+	JobRef job = std::make_shared<Job>(level, &ReplicatedLevel::SetLocalPlayer, std::move(localPlayer));
+	level->Push(job);
+
 	Protocol::C_ENTER_GAME enterPkt;
-	
-	userId = pkt.user().id();
 	auto sendBuffer = ServerPacketHandler::MakeSendBuffer(enterPkt);
 	session->Send(sendBuffer);
 	return true;
@@ -39,54 +48,47 @@ bool Handle_S_ENTER_GAME(PacketSessionRef& session, Protocol::S_ENTER_GAME& pkt)
 	std::shared_ptr<ReplicatedLevel> level = Cast<ReplicatedLevel>(Engine::Get().GetLevel());
 	ASSERT_CRASH(level);
 
-	// TODO : 맵의 벽 액터 스폰
-	JobRef job = std::make_shared<Job>(level, &ReplicatedLevel::InitField, pkt.width(), pkt.height());
-	level->Push(job);
+	{
+		JobRef job = std::make_shared<Job>(level, &ReplicatedLevel::InitField, pkt.width(), pkt.height());
+		level->Push(job);
+	}
+	{
+		vector<Protocol::PlayerInfo> players;
+		players.reserve(pkt.players().size());
+		for(auto player : pkt.players())
+		{
+			players.emplace_back(player);
+		}
 
-	// TODO : 플레이어 정보 저장
-	
-	const Protocol::HeadData& head = pkt.player().head();
-	userObjectId = head.actor().objectid();
-	Vector2 spawnPos = Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
-	shared_ptr<Player> player = level->SpawnActor<Player>(spawnPos, head.actor().objectid());
-	player->SetMoveSpeed(head.movespeed());
-	player->SetSyncDirection(head.dir());
+		JobRef job = std::make_shared<Job>(level, &ReplicatedLevel::InitPlayers, std::move(players));
+		level->Push(job);
+	}
 
 	return true;
 }
 
 bool Handle_S_SPAWN_ACTOR(PacketSessionRef& session, Protocol::S_SPAWN_ACTOR& pkt)
 {
-	if (userObjectId != pkt.id())
+	std::shared_ptr<ReplicatedLevel> level = Cast<ReplicatedLevel>(Engine::Get().GetLevel());
+	ASSERT_CRASH(level);
+
+	Vector2 spawnPos = Vector2(pkt.spawnpos().x() / 100, pkt.spawnpos().y() / 100);
+	uint64 objectId = pkt.id();
+	Protocol::ObjectType objectType = ObjectIdHandler::GetObjectType(objectId);
+
+	switch (objectType)
 	{
-		std::shared_ptr<ReplicatedLevel> level = Cast<ReplicatedLevel>(Engine::Get().GetLevel());
-		ASSERT_CRASH(level);
-
-		Vector2 spawnPos = Vector2(pkt.spawnpos().x() / 100, pkt.spawnpos().y() / 100);
-		uint64 objectId = pkt.id();
-		Protocol::ObjectType objectType = ObjectIdHandler::GetObjectType(objectId);
-		
-		switch (objectType)
-		{
-			case Protocol::ObjectType::OBJECT_SNAKE_HEAD:
-			{
-				// 스폰 패킷으로 오는 뱀 머리는 다 리모트 플레이어
-				level->SpawnActor<OtherPlayer>(spawnPos, pkt.id());
-				break;
-			}	
-			//case Protocol::ObjectType::OBJECT_SNAKE_BODY:
-			//{
-			//	// TODO : 패킷 수정, 이쪽이 아니라 별도의 패킷이 필요
-			//	level->SpawnActor<SubActor>(spawnPos, pkt.id());
-			//	break;
-			//}
-			case Protocol::ObjectType::OBJECT_ITEM:
-			{
-				level->SpawnActor<Item>(spawnPos, pkt.id());
-				break;
-			}
-		}
-
+	case Protocol::ObjectType::OBJECT_SNAKE_HEAD:
+	{
+		// 스폰 패킷으로 오는 뱀 머리는 다 리모트 플레이어
+		level->SpawnActor<OtherPlayer>(spawnPos, pkt.id());
+		break;
+	}
+	case Protocol::ObjectType::OBJECT_ITEM:
+	{
+		level->SpawnActor<Item>(spawnPos, pkt.id());
+		break;
+	}
 	}
 
 	return true;

@@ -60,6 +60,7 @@ void SubActor::Tick(float deltaTime)
 			// DIR_UP -> 	DIR_RIGHT 3
 			// DIR_LEFT	-> 	DIR_UP 4
 			// DIR_RIGHT -> DIR_DOWN 5
+
 			int32 value = static_cast<int32>(_curDir) + 1;
 			image = _images[value];
 		}

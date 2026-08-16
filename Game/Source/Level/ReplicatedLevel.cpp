@@ -8,18 +8,26 @@
 #include "Actor/Wall.h"
 #include "Actor/Item.h"
 #include "Utils/ObjectIdHandler.h"
+#include "Actor/OtherPlayer.h"
 
 using namespace Protocol;
 
 void ReplicatedLevel::OnInitialized()
 {
 	super::OnInitialized();
+	_gameState = make_unique<GameState>();
 }
 
 void ReplicatedLevel::Push(JobRef job)
 {
 	WRITE_LOCK;
 	_jobQueue.push(job);
+}
+
+void ReplicatedLevel::SetLocalPlayer(Client::PlayerInfo localPlayer)
+{
+	ASSERT_CRASH(_gameState);
+	_gameState->SetLocalPlayer(localPlayer);
 }
 
 void ReplicatedLevel::UpdateReplicated()
@@ -154,6 +162,41 @@ void ReplicatedLevel::InitField(uint32 width, uint32 height)
 			SpawnActor<Wall>(Craft::Vector2(0, idx));
 		//else if(idx % 3 == 2)
 			SpawnActor<Wall>(Craft::Vector2(width - 1, idx));
+	}
+}
+
+void ReplicatedLevel::InitPlayers(vector<Protocol::PlayerInfo> players)
+{
+	ASSERT_CRASH(_gameState);
+
+	for(const Protocol::PlayerInfo& player : players)
+	{
+		Client::PlayerInfo info;
+		info.SetPlayerInfo(player);
+
+		if(info.userId == _gameState->GetLocalPlayerId())
+		{
+			// 로컬 플레이어 초기화
+			_gameState->SetLocalPlayer(info);
+			// TODO : 생명 주기 파악 (쫌 불안함)
+			const Protocol::HeadData& head = player.head();
+
+			Craft::Vector2 spawnPos = Craft::Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
+			shared_ptr<Player> player = SpawnActor<Player>(spawnPos, head.actor().objectid());
+			player->SetMoveSpeed(head.movespeed());
+			player->SetSyncDirection(head.dir());
+		}
+		else
+		{
+			// 리모트 플레이어 초기화
+			_gameState->UpdatePlayerInfo(info);
+			const Protocol::HeadData& head = player.head();
+
+			Craft::Vector2 spawnPos = Craft::Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
+			shared_ptr<OtherPlayer> player = SpawnActor<OtherPlayer>(spawnPos, head.actor().objectid());
+			//player->SetMoveSpeed(head.movespeed());
+			//player->SetSyncDirection(head.dir());
+		}
 	}
 }
 
