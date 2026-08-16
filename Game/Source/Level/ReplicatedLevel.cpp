@@ -24,10 +24,10 @@ void ReplicatedLevel::Push(JobRef job)
 	_jobQueue.push(job);
 }
 
-void ReplicatedLevel::SetLocalPlayer(Client::PlayerInfo localPlayer)
+void ReplicatedLevel::InitLocalPlayer(Client::PlayerInfo localPlayer)
 {
 	ASSERT_CRASH(_gameState);
-	_gameState->SetLocalPlayer(localPlayer);
+	_gameState->InitLocalPlayer(localPlayer);
 }
 
 void ReplicatedLevel::UpdateReplicated()
@@ -51,35 +51,45 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 	vector<PlayerRef> players = FindActors<Player>();
 	for (PlayerRef player : players)
 	{
-		for (auto headInfo : prevSyncData.pkt.heads())
+		for (auto playerInfo : prevSyncData.pkt.players())
 		{
-			if (player->GetObjectId() == headInfo.actor().objectid())
+			if (player->GetObjectId() == playerInfo.head().actor().objectid())
 			{
-				ActorInfo actorInfo = headInfo.actor();
+				Client::PlayerInfo info;
+				info.SetPlayerInfo(playerInfo);
+				_gameState->UpdatePlayerInfo(info);
+
+				const Protocol::HeadData& head = playerInfo.head();
+				ActorInfo actorInfo = head.actor();
 				player->SetPrevSyncTick(prevSyncData.syncTick);
 				player->SetPrevSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
-				player->SetSyncDirection(headInfo.dir());
+				player->SetSyncDirection(head.dir());
 
-				if (headInfo.trails_size() > 0)
+				if (head.trails_size() > 0)
 				{
-					player->UpdateTrailInfo(headInfo.trails());
+					player->UpdateTrailInfo(head.trails());
 				}
 
 				break;
 			}
 		}
 
-		for (auto headInfo : nextSyncData.pkt.heads())
+		for (auto playerInfo : nextSyncData.pkt.players())
 		{
-			if (player->GetObjectId() == headInfo.actor().objectid())
+			// 파괴 예정이므로 갱신하지 않음
+			if(player->IsActive() == false)
+				continue;
+
+			if (player->GetObjectId() == playerInfo.head().actor().objectid())
 			{
-				ActorInfo actorInfo = headInfo.actor();
+				const Protocol::HeadData& head = playerInfo.head();
+				const ActorInfo& actorInfo = head.actor();
 				player->SetNextSyncTick(nextSyncData.syncTick);
 				player->SetNextSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
 
-				if (headInfo.trails_size() > 0)
+				if (head.trails_size() > 0)
 				{
-					player->UpdateNextTrailInfo(headInfo.trails());
+					player->UpdateNextTrailInfo(head.trails());
 				}
 
 				break;
@@ -174,10 +184,10 @@ void ReplicatedLevel::InitPlayers(vector<Protocol::PlayerInfo> players)
 		Client::PlayerInfo info;
 		info.SetPlayerInfo(player);
 
-		if(info.userId == _gameState->GetLocalPlayerId())
+		if(info.userId == GLocalUserId)
 		{
 			// 로컬 플레이어 초기화
-			_gameState->SetLocalPlayer(info);
+			_gameState->InitLocalPlayer(info);
 			const Protocol::HeadData& head = player.head();
 
 			Craft::Vector2 spawnPos = Craft::Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
@@ -189,13 +199,11 @@ void ReplicatedLevel::InitPlayers(vector<Protocol::PlayerInfo> players)
 		{
 			// TODO : 리모트 플레이어 초기화 완성
 			// 리모트 플레이어 초기화
-			_gameState->UpdatePlayerInfo(info);
+			_gameState->AddPlayerInfo(info);
 			const Protocol::HeadData& head = player.head();
 
 			Craft::Vector2 spawnPos = Craft::Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
 			shared_ptr<OtherPlayer> player = SpawnActor<OtherPlayer>(spawnPos, head.actor().objectid());
-			//player->SetMoveSpeed(head.movespeed());
-			//player->SetSyncDirection(head.dir());
 		}
 	}
 }
@@ -204,13 +212,12 @@ void ReplicatedLevel::SpawnPlayer(const Protocol::PlayerInfo& player)
 {
 	ASSERT_CRASH(_gameState);
 
-	if(player.id() == _gameState->GetLocalPlayerId())
+	if(player.id() == GLocalUserId)
 		return;
 
 	Client::PlayerInfo info;
 	info.SetPlayerInfo(player);
-
-	_gameState->UpdatePlayerInfo(info);
+	_gameState->AddPlayerInfo(info);
 	const Protocol::HeadData& head = player.head();
 
 	Craft::Vector2 spawnPos = Craft::Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
@@ -219,13 +226,6 @@ void ReplicatedLevel::SpawnPlayer(const Protocol::PlayerInfo& player)
 
 void ReplicatedLevel::Tick(float deltaTime)
 {
-	//const std::wstring frameRate = std::format(L"FPS : {}", 1 / deltaTime);
-
-	//const std::wstring syncQueueSize = std::format(L"Sync Queue Size : {}", _syncQueue.size());
-
-	//Craft::Renderer::Get().Submit(frameRate, Craft::Vector2::Zero, Craft::Color::BrightWhite, 100);
-	//Craft::Renderer::Get().Submit(syncQueueSize, Craft::Vector2(0,1), Craft::Color::BrightWhite, 100);
-
 	UpdateReplicated();
 
 	// POSTPHONE_TICK 값만큼 이전 서버 데이터로 갱신 및 보간

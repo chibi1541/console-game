@@ -33,7 +33,7 @@ bool Handle_S_LOGIN(PacketSessionRef& session, Protocol::S_LOGIN& pkt)
 	localPlayer.userId = pkt.user().id();
 	localPlayer.name = pkt.user().name();
 
-	JobRef job = std::make_shared<Job>(level, &ReplicatedLevel::SetLocalPlayer, std::move(localPlayer));
+	JobRef job = std::make_shared<Job>(level, &ReplicatedLevel::InitLocalPlayer, std::move(localPlayer));
 	level->Push(job);
 
 	Protocol::C_ENTER_GAME enterPkt;

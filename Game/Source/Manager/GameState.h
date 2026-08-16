@@ -25,6 +25,7 @@ struct PlayerInfo
 		userId = other.id();
 		name = other.name();
 		score = other.score();
+		bGameOver = other.isgameover();
 		objectId = static_cast<uint64>(other.head().actor().objectid());
 	}
 };
@@ -37,19 +38,19 @@ public:
 	GameState() = default;
 	~GameState() = default;
 
-	void SetLocalPlayer(const Client::PlayerInfo& player) { _localPlayer = player; }
+	void InitLocalPlayer(const Client::PlayerInfo& player);
+	void AddPlayerInfo(const Client::PlayerInfo& player);
 	void UpdatePlayerInfo(const Client::PlayerInfo& player);
 
-	const Client::PlayerInfo& GetLocalPlayer() const { return _localPlayer; }
+	const Client::PlayerInfo& GetLocalPlayer() const;
 	const vector<Client::PlayerInfo>& GetRemotePlayerInfo() const { return _playerInfos; }
 
-	const uint64 GetLocalPlayerId() const {return _localPlayer.userId;}
-	const uint64 GetLocalActorId() const {return _localPlayer.objectId;}
-
 private:
-	Client::PlayerInfo _localPlayer;
 	vector<Client::PlayerInfo> _playerInfos;
 };
+
+extern uint64 GLocalUserId;
+extern uint64 GLocalActorId;
 
 
 

@@ -32,10 +32,7 @@ public:
 public:
 	void Push(JobRef job);
 
-	void SetLocalPlayer(Client::PlayerInfo localPlayer);
-
-	const uint64 GetLocalPlayerId() const {return _gameState->GetLocalPlayerId(); }
-	const uint64 GetLocalActorId() const {return _gameState->GetLocalActorId(); }
+	void InitLocalPlayer(Client::PlayerInfo localPlayer);
 
 	void InitField(uint32 width, uint32 height);
 
