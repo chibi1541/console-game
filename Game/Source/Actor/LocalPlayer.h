@@ -3,6 +3,8 @@
 
 class LocalPlayer : public Player
 {
+	enum {WARNING_VALUE = 3,};
+
 	TYPE_DECLARATIONS(LocalPlayer, Player)
 
 public:
@@ -13,5 +15,9 @@ public:
 private:
 	virtual void Tick(float deltaTime) override;
 
+	void ProcessPlayerInput();
+	void ProcessAI(float deltaTime);
+
+	float _elapsedTime = 2.f;
 };
 

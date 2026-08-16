@@ -19,7 +19,10 @@ public:
 	virtual void OnConnected()
 	{
 		Protocol::C_LOGIN pkt;
-		pkt.set_name("Player");
+		
+		std::string name = (GIsAI == false) ? "Player" : "Ai";
+		pkt.set_name(name);
+		
 		auto sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
 		Send(sendBuffer);
 	}
@@ -42,8 +45,15 @@ public:
 	}
 };
 
-int main()
+int main(int argc, char* argv[])
 {
+	for(int i = 1; i < argc ; i++)
+	{
+		std::string arg = argv[i];
+		if(arg == "--ai")
+			GIsAI = true;
+	}
+
 	ServerPacketHandler::Init();
 
 	GService = MakeShared<ClientService>(
@@ -63,7 +73,7 @@ int main()
 		{
 			while (true)
 			{
-				GService->GetIocpCore()->Dispatch();
+				GService->GetIocpCore()->Dispatch(10);
 
 				if(GEngineQuit)
 					break;
