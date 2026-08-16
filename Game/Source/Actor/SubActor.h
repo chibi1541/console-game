@@ -5,6 +5,7 @@
 
 class SubActor : public Craft::Actor
 {
+	enum { LEFT = 2, UP = 3, RIGHT = 4, DOWN = 5 };
 	TYPE_DECLARATIONS(SubActor, Craft::Actor);
 
 public:
@@ -13,12 +14,17 @@ public:
 	//SubActor(const std::wstring& image, const Craft::Vector2& position, Craft::Color color, uint64 objectId);
 
 	const Protocol::DirectionType& GetCurDir() const { return _curDir; }
-	void SetCurDir(const Protocol::DirectionType& dirType) { _curDir  = dirType; }
-	const Protocol::DirectionType& GetPrevDir() const {return _prevDir;}
+	void SetCurDir(const Protocol::DirectionType& dirType) { _curDir = dirType; }
+	const Protocol::DirectionType& GetPrevDir() const { return _prevDir; }
 	void SetPrevDir(const Protocol::DirectionType& dirType) { _prevDir = dirType; }
+
+private:
+	virtual void Tick(float deltaTime) override;
 
 private:
 	Protocol::DirectionType _curDir = Protocol::DirectionType::DIR_NONE;
 	Protocol::DirectionType _prevDir = Protocol::DirectionType::DIR_NONE;
+
+	vector<std::wstring> _images;
 };
 

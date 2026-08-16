@@ -36,21 +36,6 @@ void ReplicatedLevel::UpdateReplicated()
 void ReplicatedLevel::AddLevelSnapshot(uint64 syncTick, Protocol::S_UPDATE_ROOM pkt)
 {
 	_syncQueue.push(LevelSyncData(syncTick, pkt));
-
-	//vector<std::shared_ptr<ReplicatedActor>> actors = FindActors<ReplicatedActor>();
-
-	//for (std::shared_ptr<ReplicatedActor> actor : actors)
-	//{
-	//	for (auto actorInfo : pkt.actors())
-	//	{
-	//		if (actor->GetObjectId() == actorInfo.objectid())
-	//		{
-	//			actor->SetLastSyncTick(syncTick);
-	//			actor->SetLastSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
-	//			break;
-	//		}
-	//	}
-	//}
 }
 
 void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData nextSyncData)
@@ -65,13 +50,13 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 				ActorInfo actorInfo = headInfo.actor();
 				player->SetPrevSyncTick(prevSyncData.syncTick);
 				player->SetPrevSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
-				
+				player->SetSyncDirection(headInfo.dir());
+
 				if (headInfo.trails_size() > 0)
 				{
 					player->UpdateTrailInfo(headInfo.trails());
 				}
 
-				//player->SetSubActorsPrevSync(prevSyncData.syncTick, headInfo.bodys());
 				break;
 			}
 		}
@@ -83,7 +68,12 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 				ActorInfo actorInfo = headInfo.actor();
 				player->SetNextSyncTick(nextSyncData.syncTick);
 				player->SetNextSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
-				//player->SetSubActorsNextSync(nextSyncData.syncTick, headInfo.bodys());
+
+				if (headInfo.trails_size() > 0)
+				{
+					player->UpdateNextTrailInfo(headInfo.trails());
+				}
+
 				break;
 			}
 		}
@@ -112,16 +102,6 @@ void ReplicatedLevel::UpdateSyncData(LevelSyncData prevSyncData, LevelSyncData n
 
 		if(bDestory)
 			actor->Destroy();
-
-		//for (auto actorInfo : nextSyncData.pkt.actors())
-		//{
-		//	if (actor->GetObjectId() == actorInfo.objectid())
-		//	{
-		//		actor->SetNextSyncTick(nextSyncData.syncTick);
-		//		actor->SetNextSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
-		//		break;
-		//	}
-		//}
 	}
 
 	for (auto field : prevSyncData.pkt.fielddata())

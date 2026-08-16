@@ -12,44 +12,15 @@
 using namespace Craft;
 
 Player::Player(const Vector2& position, uint64 objectId)
-	: super(L"◑", position, Craft::Color::Green, objectId)
+	: super(L"►", position, Craft::Color::Green, objectId)
 {
 	sortingOrder = 10;
-}
 
-//void Player::SetSubActorsPrevSync(uint64 syncTickCount, const google::protobuf::RepeatedPtrField<Protocol::ActorInfo>& actorInfos)
-//{
-//	for (auto actorInfo : actorInfos)
-//	{
-//		for (auto actor : _subActors)
-//		{
-//			auto actorRef = actor.lock();
-//			if (actorRef && actorRef->GetObjectId() == actorInfo.objectid())
-//			{
-//				actorRef->SetPrevSyncTick(syncTickCount);
-//				actorRef->SetPrevSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
-//				break;
-//			}
-//		}
-//	}
-//}
-//
-//void Player::SetSubActorsNextSync(uint64 syncTickCount, const google::protobuf::RepeatedPtrField<Protocol::ActorInfo>& actorInfos)
-//{
-//	for (auto actorInfo : actorInfos)
-//	{
-//		for (auto actor : _subActors)
-//		{
-//			auto actorRef = actor.lock();
-//			if (actorRef && actorRef->GetObjectId() == actorInfo.objectid())
-//			{
-//				actorRef->SetNextSyncTick(syncTickCount);
-//				actorRef->SetNextSyncPos(Craft::Vector2(actorInfo.pos().x(), actorInfo.pos().y()));
-//				break;
-//			}
-//		}
-//	}
-//}
+	_images.emplace_back(L"◄");
+	_images.emplace_back(L"►");
+	_images.emplace_back(L"▲");
+	_images.emplace_back(L"▼");
+}
 
 void Player::UpdateTrailInfo(const google::protobuf::RepeatedPtrField<Protocol::TrailData>& trails)
 {
@@ -78,10 +49,24 @@ void Player::UpdateTrailInfo(const google::protobuf::RepeatedPtrField<Protocol::
 	UpdateSubActorPos();
 }
 
+void Player::UpdateNextTrailInfo(const google::protobuf::RepeatedPtrField<Protocol::TrailData>& trails)
+{
+	_nextTrails.clear();
+	for (const Protocol::TrailData& newTrail : trails)
+	{
+		Trail trail;
+		trail.pos = Vector2(newTrail.pos().x(), newTrail.pos().y());
+		trail.prevDir = newTrail.prevdir();
+		trail.curDir = newTrail.curdir();
+
+		_nextTrails.emplace_back(trail);
+	}
+
+	_nextTrailIndex = static_cast<int32>(_nextTrails.size());
+}
+
 void Player::UpdateSubActorPos()
 {
-	//ASSERT_CRASH(WarningTrailPos() == false);
-
 	ASSERT_CRASH(_trailIndex == _subActors.size());
 
 	for (uint32 idx = 0; idx < _trailIndex; ++idx)
@@ -108,13 +93,82 @@ bool Player::WarningTrailPos()
 	return false;
 }
 
+void Player::InterpolateSync(float deltaTime)
+{
+	int64 b = _nextSyncTick - _prevSyncTick;
+
+	float delta = (b > 0) ? static_cast<float>(GDelayedTickCount - _prevSyncTick) / static_cast<float>(b) : deltaTime;
+
+	AxisType axisType = static_cast<AxisType>(static_cast<int32>(_syncDir) / static_cast<int32>(AxisType::NUMBER));
+
+	if(axisType == AxisType::X)
+	{
+		calcXPos = static_cast<int32>((_prevPos.x / 100) + ((_nextPos.x / 100) - (_prevPos.x / 100)) * delta);
+		calcYPos = (_trailQueue.size() > 0) ? _trailQueue.back().pos.y : position.y;
+	}
+	else
+	{
+		calcYPos = static_cast<int32>((_prevPos.y / 100) + ((_nextPos.y / 100) - (_prevPos.y / 100)) * delta);
+		calcXPos = (_trailQueue.size() > 0) ? _trailQueue.back().pos.x : position.x;
+	}
+
+	Vector2 newPos = Vector2(calcXPos, calcYPos);
+
+	// 좌표 이동이 발생했다면 다음 싱크 데이터의 궤적에서 방향 정보를 가지고 방향을 전환
+	// 꽁무니 위치를 갱신
+	if(newPos != position)
+	{
+		Trail nextTrail = GetNextTrail(newPos);
+		if(nextTrail.curDir != Protocol::DirectionType::DIR_NONE)
+			_syncDir = nextTrail.curDir;
+
+		const Trail newTrail = GetNextTrail(position);
+		if(newTrail.curDir != Protocol::DirectionType::DIR_NONE)
+		{
+			_trailQueue.emplace_back(newTrail);
+
+			if (_trailIndex < _nextTrailIndex)
+			{
+				++_trailIndex;
+
+				shared_ptr<Level> level = owner.lock();
+				ASSERT_CRASH(level);
+
+				while (_trailIndex > _subActors.size())
+				{
+					SubActorRef subActor = level->SpawnActor<SubActor>(newTrail.pos, newTrail.curDir, newTrail.prevDir);
+					_subActors.emplace_back(subActor);
+				}
+			}
+			else
+				_trailQueue.pop_front();
+
+			UpdateSubActorPos();
+		}
+	}
+
+	SetPosition(newPos);
+}
+
+const Trail Player::GetNextTrail(Craft::Vector2& pos) const
+{
+	for (int32 idx = _nextTrailIndex - 1; idx >= 0; --idx)
+	{
+		if(_nextTrails[idx].pos == pos)
+		{
+			return _nextTrails[idx];
+		}
+	}
+
+	return Trail();
+}
+
 void Player::Tick(float deltaTime)
 {
 	if (_prevSyncTick == 0)
 		return;
 
-	// TODO : 입력 처리 따로 빼기
-
+	// TODO : AI용 로직을 추가
 	// 종료처리
 	if (Input::Get().GetKeyDown(VK_ESCAPE))
 	{
@@ -181,59 +235,10 @@ void Player::Tick(float deltaTime)
 
 	Vector2 prevPos = GetPosition();
 
+	InterpolateSync(deltaTime);
 
+	if(_syncDir != Protocol::DirectionType::DIR_NONE)
+		image = _images[static_cast<int32>(_syncDir) - 1];
 
-	super::Tick(deltaTime);
-
-	// 궤적 보간
-	// 이동 발생했다면 클라에서도 자체적으로 궤적을 갱신해줌
-	//if (prevPos != position && _trailIndex != 0)
-	//{
-	//	for (int32 idx = 0; idx < _trailIndex; ++idx)
-	//	{
-	//		ASSERT_CRASH(position != _trailQueue[idx]);
-	//	}
-
-	//	int32 xDelta = position.x - prevPos.x;
-	//	int32 yDelta = position.y - prevPos.y;
-
-	//	// 좌표 값 사이의 부호 방향이 나옴
-	//	int32 xValue = (xDelta != 0) ? (xDelta / ::abs(xDelta)) : 0;
-	//	int32 yValue = (yDelta != 0) ? (yDelta / ::abs(yDelta)) : 0;
-
-	//	// 2칸 이상 움직인 겨우 1 이상의 값이 나옴
-	//	int32 xCount = ::abs(xDelta) - 1;
-	//	int32 yCount = ::abs(yDelta) - 1;
-
-	//	_trailQueue.emplace_back(prevPos);
-	//	_trailQueue.pop_front();
-
-	//	while (xCount > 0)
-	//	{
-	//		prevPos.x += xValue;
-
-	//		_trailQueue.emplace_back(prevPos);
-	//		_trailQueue.pop_front();
-	//		
-	//		--xCount;
-	//	}
-
-	//	while (yCount > 0)
-	//	{
-	//		prevPos.y += yValue;
-
-	//		_trailQueue.emplace_back(prevPos);
-	//		_trailQueue.pop_front();
-
-	//		--yCount;
-	//	}
-
-	//	UpdateSubActorPos();
-	//}
-
-	// temp : 디버그용
-	//{
-	//	const std::wstring ypos = std::format(L"Prev : x{} y{} Cur : x{} y{}", prevPos.x, prevPos.y, position.x, position.y);
-	//	Craft::Renderer::Get().Submit(ypos, Craft::Vector2(0, 2), Craft::Color::BrightWhite, 100);
-	//}
+	//super::Tick(deltaTime);
 }

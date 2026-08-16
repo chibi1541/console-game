@@ -16,7 +16,7 @@ public:
 	void SetPrevSyncTick(uint64 tickCount) { _prevSyncTick = tickCount; }
 	int64 GetPrevSyncTick() const { return _prevSyncTick; }
 
-	void SetPrevSyncPos(const Craft::Vector2& prevPos) { _prevPos = prevPos; }
+	void SetPrevSyncPos(const Craft::Vector2& prevPos);
 
 	void SetNextSyncTick(uint64 tickCount) { _nextSyncTick = tickCount; }
 	int64 GetNextSyncTick() const { return _nextSyncTick; }
