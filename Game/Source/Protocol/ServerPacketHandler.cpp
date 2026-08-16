@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "ServerPacketHandler.h"
 #include "Engine/Engine.h"
-#include "Level/TestLevel.h"
 #include "ServerCore/Session.h"
 #include "Actor/Player.h"
 #include "Actor/OtherPlayer.h"
@@ -11,6 +10,9 @@
 #include "Actor/Item.h"
 #include "Actor/SubActor.h"
 #include "Manager/GameState.h"
+#include "Level/ReplicatedLevel.h"
+
+using namespace Craft;
 
 PacketHandlerFunc GPacketHandler[UINT16_MAX];
 
@@ -90,6 +92,17 @@ bool Handle_S_SPAWN_ACTOR(PacketSessionRef& session, Protocol::S_SPAWN_ACTOR& pk
 		break;
 	}
 	}
+
+	return true;
+}
+
+bool Handle_S_SPAWN_PLAYER(PacketSessionRef& session, Protocol::S_SPAWN_PLAYER& pkt)
+{
+	std::shared_ptr<ReplicatedLevel> level = Cast<ReplicatedLevel>(Engine::Get().GetLevel());
+	ASSERT_CRASH(level);
+
+	JobRef job = std::make_shared<Job>(level, &ReplicatedLevel::SpawnPlayer, pkt.player());
+	level->Push(job);
 
 	return true;
 }

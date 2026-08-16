@@ -178,7 +178,6 @@ void ReplicatedLevel::InitPlayers(vector<Protocol::PlayerInfo> players)
 		{
 			// 로컬 플레이어 초기화
 			_gameState->SetLocalPlayer(info);
-			// TODO : 생명 주기 파악 (쫌 불안함)
 			const Protocol::HeadData& head = player.head();
 
 			Craft::Vector2 spawnPos = Craft::Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
@@ -188,6 +187,7 @@ void ReplicatedLevel::InitPlayers(vector<Protocol::PlayerInfo> players)
 		}
 		else
 		{
+			// TODO : 리모트 플레이어 초기화 완성
 			// 리모트 플레이어 초기화
 			_gameState->UpdatePlayerInfo(info);
 			const Protocol::HeadData& head = player.head();
@@ -198,6 +198,23 @@ void ReplicatedLevel::InitPlayers(vector<Protocol::PlayerInfo> players)
 			//player->SetSyncDirection(head.dir());
 		}
 	}
+}
+
+void ReplicatedLevel::SpawnPlayer(const Protocol::PlayerInfo& player)
+{
+	ASSERT_CRASH(_gameState);
+
+	if(player.id() == _gameState->GetLocalPlayerId())
+		return;
+
+	Client::PlayerInfo info;
+	info.SetPlayerInfo(player);
+
+	_gameState->UpdatePlayerInfo(info);
+	const Protocol::HeadData& head = player.head();
+
+	Craft::Vector2 spawnPos = Craft::Vector2(head.actor().pos().x() / 100, head.actor().pos().y() / 100);
+	shared_ptr<OtherPlayer> actor = SpawnActor<OtherPlayer>(spawnPos, head.actor().objectid());
 }
 
 void ReplicatedLevel::Tick(float deltaTime)

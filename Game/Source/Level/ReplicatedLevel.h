@@ -34,9 +34,14 @@ public:
 
 	void SetLocalPlayer(Client::PlayerInfo localPlayer);
 
+	const uint64 GetLocalPlayerId() const {return _gameState->GetLocalPlayerId(); }
+	const uint64 GetLocalActorId() const {return _gameState->GetLocalActorId(); }
+
 	void InitField(uint32 width, uint32 height);
 
 	void InitPlayers(vector<Protocol::PlayerInfo> players);
+
+	void SpawnPlayer(const Protocol::PlayerInfo& player);
 
 	void AddLevelSnapshot(uint64 syncTick, Protocol::S_UPDATE_ROOM pkt);
 
