@@ -125,7 +125,7 @@ void LocalPlayer::ProcessAI(float deltaTime)
 		{
 			Protocol::C_MOVE_ACTOR pkt;
 
-			if (position.y >= (80 - WARNING_VALUE))
+			if (position.y >= (30 - WARNING_VALUE))
 			{
 				pkt.set_newdir(Protocol::DirectionType::DIR_UP);
 			}

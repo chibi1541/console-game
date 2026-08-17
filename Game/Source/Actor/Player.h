@@ -29,7 +29,7 @@ public:
 	float GetMoveSpeed() const { return moveSpeed; }
 	void SetMoveSpeed(float speed) { moveSpeed = speed; }
 	Protocol::DirectionType GetSyncDirectionType() { return syncDir; }
-	void SetSyncDirection(Protocol::DirectionType direction) { syncDir = direction; }
+	void SetSyncDirection(Protocol::DirectionType direction);
 
 	void UpdateTrailInfo(const google::protobuf::RepeatedPtrField<Protocol::TrailData>& trails);
 	void UpdateNextTrailInfo(const google::protobuf::RepeatedPtrField<Protocol::TrailData>& trails);

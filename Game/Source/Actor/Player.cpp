@@ -33,6 +33,14 @@ Player::Player(const Craft::Vector2& position, Craft::Color color, uint64 object
 	images.emplace_back(L"▼");
 }
 
+void Player::SetSyncDirection(Protocol::DirectionType direction)
+{
+	syncDir = direction;
+	
+	if (syncDir != Protocol::DirectionType::DIR_NONE)
+		image = images[static_cast<int32>(syncDir) - 1];
+}
+
 void Player::UpdateTrailInfo(const google::protobuf::RepeatedPtrField<Protocol::TrailData>& trails)
 {
 	trailQueue.clear();
@@ -190,63 +198,6 @@ void Player::Tick(float deltaTime)
 {
 	if (prevSyncTick == 0)
 		return;
-
-	// TODO : AI용 로직을 추가
-	// 종료처리
-	//if (Input::Get().GetKeyDown(VK_ESCAPE))
-	//{
-	//	QuitGame();
-	//	return;
-	//}
-
-	//if (Input::Get().GetKeyDown(VK_RIGHT))
-	//{
-	//	Vector2 newPosition = GetPosition();
-	//	newPosition.x += 1;
-
-	//	// TODO : 클라에서 서버 쪽으로 패킷 보내는 로직도 별도의 분리가 필요
-	//	Protocol::C_MOVE_ACTOR pkt;
-	//	pkt.set_newdir(Protocol::DirectionType::DIR_RIGHT);
-
-	//	SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
-	//	GService.get()->Broadcast(sendBuffer);
-	//}
-
-	//if (Input::Get().GetKeyDown(VK_LEFT))
-	//{
-	//	Vector2 newPosition = GetPosition();
-	//	newPosition.x -= 1;
-
-	//	Protocol::C_MOVE_ACTOR pkt;
-	//	pkt.set_newdir(Protocol::DirectionType::DIR_LEFT);
-
-	//	SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
-	//	GService.get()->Broadcast(sendBuffer);
-	//}
-
-	//if (Input::Get().GetKeyDown(VK_UP))
-	//{
-	//	Vector2 newPosition = GetPosition();
-	//	newPosition.y -= 1;
-
-	//	Protocol::C_MOVE_ACTOR pkt;
-	//	pkt.set_newdir(Protocol::DirectionType::DIR_UP);
-
-	//	SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
-	//	GService.get()->Broadcast(sendBuffer);
-	//}
-
-	//if (Input::Get().GetKeyDown(VK_DOWN))
-	//{
-	//	Vector2 newPosition = GetPosition();
-	//	newPosition.y += 1;
-
-	//	Protocol::C_MOVE_ACTOR pkt;
-	//	pkt.set_newdir(Protocol::DirectionType::DIR_DOWN);
-
-	//	SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
-	//	GService.get()->Broadcast(sendBuffer);
-	//}
 
 	Vector2 prevPos = GetPosition();
 

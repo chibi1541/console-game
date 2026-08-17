@@ -124,6 +124,9 @@ void ReplicatedLevel::OnInitialized()
 		L"█████"
 	};
 	lose.emplace_back(e);
+
+	SetRandomSeed32();
+	SetRandomSeed64();
 }
 
 void ReplicatedLevel::Push(JobRef job)
