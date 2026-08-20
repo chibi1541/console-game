@@ -1,6 +1,6 @@
-﻿# ==== 빌드 산출물 ====
-[Bb]uild/
-[Bb]in/
+﻿[Bb]uild/
+[Bb]in/Debug/*
+[Bb]in/Release/*
 [Oo]bj/
 out/
 cmake-build-*/
@@ -22,6 +22,14 @@ Intermediate/
 *.ilk
 *.exp
 *.idb
+
+# ==== 라이브러리 파일 제외 ====
+!Bin/Debug/CraftEngine.dll
+!Bin/Debug/libprotobufd.dll
+
+!CraftEngine.lib
+!ServerCore.lib
+!libprotobufd.lib
 
 # ==== CMake ====
 CMakeFiles/
@@ -47,8 +55,6 @@ Makefile
 *.VC.db
 *.VC.VC.opendb
 ipch/
-[Dd]ebug/
-[Rr]elease/
 x64/
 x86/
 ARM/
