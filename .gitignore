@@ -60,6 +60,7 @@ x86/
 ARM/
 ARM64/
 *.sln
+*.slnx
 
 # ==== VS Code ====
 .vscode/
