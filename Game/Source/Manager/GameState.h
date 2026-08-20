@@ -56,7 +56,7 @@ public:
 	void AddPlayerInfo(const Client::PlayerInfo& player);
 	void UpdatePlayerInfo(const Client::PlayerInfo& player);
 
-	const Client::PlayerInfo& GetLocalPlayer() const;
+	const Client::PlayerInfo GetLocalPlayer() const;
 	vector<Client::PlayerInfo> GetAllPlayerInfo() const { return _playerInfos; }
 
 	uint32 GetCurPlayerCount() const {return static_cast<uint32>(_playerInfos.size()); }

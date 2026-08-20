@@ -49,7 +49,7 @@ void GameState::UpdatePlayerInfo(const Client::PlayerInfo& player)
 	}
 }
 
-const Client::PlayerInfo& GameState::GetLocalPlayer() const
+const Client::PlayerInfo GameState::GetLocalPlayer() const
 {
 	for(const Client::PlayerInfo& player : _playerInfos)
 	{

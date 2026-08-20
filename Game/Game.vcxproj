@@ -72,8 +72,7 @@
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <PreBuildEvent>
-      <Command>xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y /i
-xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
+      <Command>xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -98,8 +97,7 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <PreBuildEvent>
-      <Command>xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y /i
-xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
+      <Command>xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -107,7 +105,6 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     <ClCompile Include="Source\Actor\RemotePlayer.cpp" />
     <ClCompile Include="Source\Manager\GameState.cpp" />
     <ClCompile Include="Source\Actor\Item.cpp" />
-    <ClCompile Include="Source\Actor\OtherPlayer.cpp" />
     <ClCompile Include="Source\Actor\ReplicatedActor.cpp" />
     <ClCompile Include="Source\Level\ReplicatedLevel.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
@@ -120,7 +117,6 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Level\TestLevel.cpp" />
     <ClCompile Include="Source\Protocol\Enum.pb.cc" />
     <ClCompile Include="Source\Protocol\Protocol.pb.cc" />
     <ClCompile Include="Source\Protocol\ServerPacketHandler.cpp" />
@@ -135,14 +131,12 @@ xcopy ..\Config\* $(OutDir)..\Config\ /e /y /i</Command>
     <ClInclude Include="Source\Actor\RemotePlayer.h" />
     <ClInclude Include="Source\Manager\GameState.h" />
     <ClInclude Include="Source\Actor\Item.h" />
-    <ClInclude Include="Source\Actor\OtherPlayer.h" />
     <ClInclude Include="Source\Actor\ReplicatedActor.h" />
     <ClInclude Include="Source\Level\ReplicatedLevel.h" />
     <ClInclude Include="Source\Globals.h" />
     <ClInclude Include="Source\Actor\Player.h" />
     <ClInclude Include="Source\Manager\Singleton.h" />
     <ClInclude Include="Source\pch.h" />
-    <ClInclude Include="Source\Level\TestLevel.h" />
     <ClInclude Include="Source\Protocol\Enum.pb.h" />
     <ClInclude Include="Source\Protocol\Protocol.pb.h" />
     <ClInclude Include="Source\Protocol\ServerPacketHandler.h" />

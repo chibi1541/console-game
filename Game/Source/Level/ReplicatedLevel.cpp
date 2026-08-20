@@ -10,7 +10,6 @@
 #include "Actor/Wall.h"
 #include "Actor/Item.h"
 #include "Utils/ObjectIdHandler.h"
-#include "Actor/OtherPlayer.h"
 
 using namespace Protocol;
 
@@ -294,7 +293,7 @@ void ReplicatedLevel::CountGameStart(float deltaTime)
 	else
 	{
 		int32 index = static_cast<int32>(_gameState->remainCount);
-		index = min(index, numbers.size() - 1);
+		index = min(index, static_cast<int32>(numbers.size())- 1);
 		int32 count = 0;
 		for (auto text : numbers[index])
 		{

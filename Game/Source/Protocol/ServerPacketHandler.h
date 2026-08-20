@@ -29,7 +29,6 @@ bool Handle_INVALID(PacketSessionRef& session, BYTE* buffer, int32 len);
 bool Handle_S_LOGIN(PacketSessionRef& session, Protocol::S_LOGIN& pkt);
 bool Handle_S_ENTER_GAME(PacketSessionRef& session, Protocol::S_ENTER_GAME& pkt);
 bool Handle_S_START_GAME(PacketSessionRef& session, Protocol::S_START_GAME& pkt);
-bool Handle_S_SPAWN_ACTOR(PacketSessionRef& session, Protocol::S_SPAWN_ACTOR& pkt);
 bool Handle_S_SPAWN_PLAYER(PacketSessionRef& session, Protocol::S_SPAWN_PLAYER& pkt);
 bool Handle_S_UPDATE_ROOM(PacketSessionRef& session, Protocol::S_UPDATE_ROOM& pkt);
 bool Handle_S_DESTROY_ACTOR(PacketSessionRef& session, Protocol::S_DESTROY_ACTOR& pkt);
@@ -48,7 +47,6 @@ public:
 		GPacketHandler[PKT_S_LOGIN] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_LOGIN>(Handle_S_LOGIN, session, buffer, len); };
 		GPacketHandler[PKT_S_ENTER_GAME] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_ENTER_GAME>(Handle_S_ENTER_GAME, session, buffer, len); };
 		GPacketHandler[PKT_S_START_GAME] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_START_GAME>(Handle_S_START_GAME, session, buffer, len); };
-		GPacketHandler[PKT_S_SPAWN_ACTOR] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_SPAWN_ACTOR>(Handle_S_SPAWN_ACTOR, session, buffer, len); };
 		GPacketHandler[PKT_S_SPAWN_PLAYER] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_SPAWN_PLAYER>(Handle_S_SPAWN_PLAYER, session, buffer, len); };
 		GPacketHandler[PKT_S_UPDATE_ROOM] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_UPDATE_ROOM>(Handle_S_UPDATE_ROOM, session, buffer, len); };
 		GPacketHandler[PKT_S_DESTROY_ACTOR] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_DESTROY_ACTOR>(Handle_S_DESTROY_ACTOR, session, buffer, len); };
