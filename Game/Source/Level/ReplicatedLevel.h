@@ -54,6 +54,8 @@ public:
 
 	void ShowGameResult();
 
+	const vector<Client::PlayerInfo> GetAllPlayerInfo() const;
+
 protected:
 	virtual void UpdateReplicated();
 

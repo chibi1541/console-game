@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "GameState.h"
 
 uint64 GLocalUserId = 0;
@@ -17,6 +17,9 @@ void GameState::InitLocalPlayer(const Client::PlayerInfo& player)
 
 void GameState::AddPlayerInfo(const Client::PlayerInfo& player)
 {
+	if (GLocalUserId == player.userId)
+		GLocalActorId = player.objectId;
+
 	for (auto it = _playerInfos.begin(); it != _playerInfos.end();++it)
 	{
 		if (player.userId == it->userId)
@@ -31,6 +34,9 @@ void GameState::AddPlayerInfo(const Client::PlayerInfo& player)
 
 void GameState::UpdatePlayerInfo(const Client::PlayerInfo& player)
 {
+	if (GLocalUserId == player.userId)
+		GLocalActorId = player.objectId;
+
 	for (Client::PlayerInfo& playerInfo : _playerInfos)
 	{
 		if (playerInfo.userId == player.userId)

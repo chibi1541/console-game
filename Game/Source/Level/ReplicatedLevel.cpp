@@ -370,6 +370,13 @@ void ReplicatedLevel::ShowGameResult()
 	}
 }
 
+const vector<Client::PlayerInfo> ReplicatedLevel::GetAllPlayerInfo() const
+{
+	ASSERT_CRASH(_gameState);
+
+	return _gameState->GetAllPlayerInfo();
+}
+
 void ReplicatedLevel::InitField(uint32 width, uint32 height)
 {
 	_width = width;

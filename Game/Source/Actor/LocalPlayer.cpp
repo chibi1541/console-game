@@ -7,13 +7,17 @@
 #include "ServerCore/Service.h"
 #include "Protocol/Enum.pb.h"
 #include "Manager/GameState.h"
+#include "Engine/Engine.h"
+#include "Level/ReplicatedLevel.h"
+#include "RemotePlayer.h"
+#include "Manager/GameState.h"
 
 using namespace Craft;
 
 LocalPlayer::LocalPlayer(const Craft::Vector2& position, uint64 objectId)
 	: super(position, Craft::Color::Green, objectId)
 {
-	
+
 }
 
 LocalPlayer::LocalPlayer(const Craft::Vector2& position, Craft::Color color, uint64 objectId)
@@ -24,13 +28,13 @@ LocalPlayer::LocalPlayer(const Craft::Vector2& position, Craft::Color color, uin
 
 void LocalPlayer::Tick(float deltaTime)
 {
-	
+
 	// TODO : AI용 로직을 추가
 	// 종료처리
-if(GIsAI == false)
-	ProcessPlayerInput();
-else
-	ProcessAI(deltaTime);
+	if (GIsAI == false)
+		ProcessPlayerInput();
+	else
+		ProcessAI(deltaTime);
 
 	super::Tick(deltaTime);
 }
@@ -92,18 +96,61 @@ void LocalPlayer::ProcessPlayerInput()
 
 void LocalPlayer::ProcessAI(float deltaTime)
 {
+	std::shared_ptr<ReplicatedLevel> level = Cast<ReplicatedLevel>(Engine::Get().GetLevel());
+	ASSERT_CRASH(level);
+
+	auto playerInfos = level->GetAllPlayerInfo();
+	bool bGameOver = true;
+	for (auto info : playerInfos)
+	{
+		if (info.objectId != GLocalActorId && info.bGameOver == false)
+		{
+			bGameOver = false;
+			break;
+		}
+	}
+
+	// 본인만 남았으면 조작하지 않음
+	if (bGameOver)
+		return;
+
+	auto remoteList = level->FindActors<RemotePlayer>();
+
 	_elapsedTime -= deltaTime;
 	AxisType axisType = static_cast<AxisType>(static_cast<int32>(syncDir) / static_cast<int32>(AxisType::NUMBER));
 	int32 sign = static_cast<int32>(syncDir % 2);
 	sign = (sign == 1) ? sign = -1 : sign = 1;
 	bool bWarning = false;
 
-	if(axisType == AxisType::X)
+	if (axisType == AxisType::X)
 	{
 		int32 front = position.x + sign * WARNING_VALUE;
-		if(front <= 0 || front >= 80)
+		if (front <= 0 || front >= 80)
 		{
 			bWarning = true;
+		}
+
+		for (auto remote : remoteList)
+		{
+			if (false == remote->IsActive())
+				continue;
+
+			bool isCountWay = false;
+			Protocol::DirectionType dir = remote->GetSyncDirectionType();
+			AxisType rAxisType = static_cast<AxisType>(static_cast<int32>(dir) / static_cast<int32>(AxisType::NUMBER));
+
+			if (rAxisType != axisType ||
+				dir == syncDir ||
+				remote->GetPosition().y != position.y)
+			{
+				continue;
+			}
+
+			if (std::abs(remote->GetPosition().x - position.x) <= 5)
+			{
+				bWarning = true;
+				break;
+			}
 		}
 	}
 	else
@@ -113,14 +160,37 @@ void LocalPlayer::ProcessAI(float deltaTime)
 		{
 			bWarning = true;
 		}
+
+		for (auto remote : remoteList)
+		{
+			if (false == remote->IsActive())
+				continue;
+
+			bool isCountWay = false;
+			Protocol::DirectionType dir = remote->GetSyncDirectionType();
+			AxisType rAxisType = static_cast<AxisType>(static_cast<int32>(dir) / static_cast<int32>(AxisType::NUMBER));
+
+			if (rAxisType != axisType ||
+				dir == syncDir ||
+				remote->GetPosition().x != position.x)
+			{
+				continue;
+			}
+
+			if (std::abs(remote->GetPosition().y - position.y) <= front)
+			{
+				bWarning = true;
+				break;
+			}
+		}
 	}
 
-	if( bWarning ||_elapsedTime <= 0.f )
+	if (bWarning || _elapsedTime <= 0.f)
 	{
 		float delta = FRandomRange(-1.0f, 1.0f);
 
 		_elapsedTime = 2.f + delta;
-		
+
 		if (axisType == AxisType::X)
 		{
 			Protocol::C_MOVE_ACTOR pkt;
@@ -129,7 +199,7 @@ void LocalPlayer::ProcessAI(float deltaTime)
 			{
 				pkt.set_newdir(Protocol::DirectionType::DIR_UP);
 			}
-			else if(position.y <= WARNING_VALUE)
+			else if (position.y <= WARNING_VALUE)
 			{
 				pkt.set_newdir(Protocol::DirectionType::DIR_DOWN);
 			}
@@ -146,11 +216,11 @@ void LocalPlayer::ProcessAI(float deltaTime)
 		{
 			Protocol::C_MOVE_ACTOR pkt;
 
-			if (position.x >= (80 - WARNING_VALUE) )
+			if (position.x >= (80 - WARNING_VALUE))
 			{
 				pkt.set_newdir(Protocol::DirectionType::DIR_LEFT);
 			}
-			else if(position.x <= WARNING_VALUE)
+			else if (position.x <= WARNING_VALUE)
 			{
 				pkt.set_newdir(Protocol::DirectionType::DIR_RIGHT);
 			}
