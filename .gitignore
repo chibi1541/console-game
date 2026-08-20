@@ -27,7 +27,7 @@ Intermediate/
 !Bin/Debug/CraftEngine.dll
 !Bin/Debug/libprotobufd.dll
 
-!CraftEngine.lib
+!Libraries/Libs/CraftEngine/Debug/CraftEngine.lib
 !ServerCore.lib
 !libprotobufd.lib
 
@@ -59,6 +59,7 @@ x64/
 x86/
 ARM/
 ARM64/
+*.sln
 
 # ==== VS Code ====
 .vscode/
